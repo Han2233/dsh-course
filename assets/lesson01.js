@@ -116,26 +116,6 @@ $('revision-prev').addEventListener('click', () => { revision = Math.max(0, revi
 $('revision-next').addEventListener('click', () => { revision = Math.min(4, revision + 1); renderRevision(); });
 $('revision-reset').addEventListener('click', () => { revision = 0; renderRevision(); });
 renderRevision();
-const answers = {
-  q1: ['b', 'Home 层后于 Profile 层，因而得到 90。配置层序与插件激活顺序是两件事。'],
-  q2: ['b', 'config 被整块替换，组合结果仅有 timeout: 90。运行时是否补默认值还要看插件 Schema。'],
-  q3: ['a', '从 Preset 与作用域内的注册开始。Profile 是应用组装，工具可见性和执行许可也要分开判断。'],
-  q4: ['c', '旧绑定保留 v1，新绑定选择 v2；旧版本退休且所有持有者释放后再清理。'],
-  q5: ['b', 'Preset 可以局部失败并保留诊断。应用入口正常，不足以证明每种能力组合都可用。'],
-  q6: ['a', '导出不启动插件、不求值表达式，但 prepareProfile 仍可能写入 Profile 相关文件。']
-};
-document.querySelectorAll('[data-quiz]').forEach(field => {
-  field.querySelector('.quiz-check').addEventListener('click', () => {
-    const selected = field.querySelector('input:checked');
-    const feedback = field.querySelector('.quiz-feedback');
-    feedback.hidden = false;
-    if (!selected) { feedback.textContent = '先选择一个答案，再检查你的判断。'; feedback.removeAttribute('data-correct'); return; }
-    const answer = answers[field.dataset.quiz];
-    const correct = selected.value === answer[0];
-    feedback.dataset.correct = String(correct);
-    feedback.textContent = (correct ? '判断正确。' : '再想一想。') + answer[1];
-  });
-});
 const sections = [...document.querySelectorAll('.lesson-section')];
 const navLinks = [...document.querySelectorAll('.toc a')];
 let scrollPending = false;
