@@ -94,6 +94,14 @@ renderPatches();
 let revision = 0;
 function renderRevision() {
   const state = models.revisionStages[revision];
+  document.querySelectorAll('[data-timeline-step]').forEach(button => {
+    button.setAttribute('aria-pressed', String(Number(button.dataset.timelineStep) === revision));
+  });
+  document.querySelectorAll('[data-timeline-column]').forEach(cell => {
+    cell.classList.toggle('selected', Number(cell.dataset.timelineColumn) === revision);
+  });
+  $('timeline-selection').textContent = '当前：T' + revision + ' · ' + state.title;
+
   $('rev1-status').textContent = state.v1;
   $('rev2-status').textContent = state.v2;
   $('revision-v1').className = 'revision' + (state.retired ? ' retired' : '') + (state.gone ? ' gone' : '');
@@ -112,6 +120,9 @@ function renderRevision() {
   $('revision-next').textContent = state.next;
   $('revision-counter').textContent = (revision + 1) + ' / 5';
 }
+document.querySelectorAll('[data-timeline-step]').forEach(button => {
+  button.addEventListener('click', () => { revision = Number(button.dataset.timelineStep); renderRevision(); });
+});
 $('revision-prev').addEventListener('click', () => { revision = Math.max(0, revision - 1); renderRevision(); });
 $('revision-next').addEventListener('click', () => { revision = Math.min(4, revision + 1); renderRevision(); });
 $('revision-reset').addEventListener('click', () => { revision = 0; renderRevision(); });
