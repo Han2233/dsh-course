@@ -4,6 +4,7 @@
 
 - [在线课程首页](https://han2233.github.io/dsh-course/)
 - [在线阅读第一课](https://han2233.github.io/dsh-course/lessons/01/)
+- [在线阅读第二课](https://han2233.github.io/dsh-course/lessons/02/)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
@@ -31,12 +32,20 @@
 
 第一课快照使用 `assets/workbench01-model.js`、`assets/workbench01.js` 和 `assets/workbench01.css`。后续课程在各自快照中逐步增加能力，保留早期课次行为。
 
+## 第二课
+
+约七千中文字符，覆盖 Context / Runtime / Fiber 的边界、服务注入与 epoch、生命周期与失败、effect 所有权及清理顺序、作用域与 Realm、五种事件分发、HMR 的协调与回滚边界。提供多种静态图解、可短路的 waterfall 演示、10 处真实源码摘录和固定提交来源。
+
+第二课工作台复用第一课的组装状态模型，新增教学插件的安装、依赖等待、服务接通与撤销、手动完成异步转换、重启、永久卸载、初始化失败和观察事件。教学插件不是完整 tool-fs；不调用模型或操作真实文件。
+
+已验证：两个 Preset、重复重启无重复贡献、依赖恢复、清理期间依赖变化、初始化失败回滚、多个状态下的卸载与停止、源码摘录和页面引用。第一课工作台快照保持原行为。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
 |---|---|---|
 | 01 | 架构地图与启动组装 | 已制作 |
-| 02 | Cordis 插件内核 | 待制作 |
+| 02 | Cordis 插件内核 | 已制作 |
 | 03 | Agent 运行循环与模型请求 | 待制作 |
 | 04 | 工具系统与执行环境 | 待制作 |
 | 05 | 会话、上下文与长对话 | 待制作 |
@@ -61,9 +70,12 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 ```sh
 python3 scripts/prepare_sources.py ../deepseek-harness
+python3 scripts/prepare_lesson02.py
 python3 scripts/check_lesson.py
+python3 scripts/check_sources02.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
+node scripts/check_lesson02.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
