@@ -17,6 +17,15 @@ function render(){
  $('lab-dispose').disabled=!ready||!state.installed;
  $('lab-fail').disabled=!ready;$('lab-fail').checked=state.fail;
  $('lab-probe').disabled=!ready;$('lab-save').disabled=!ready;$('lab-task').disabled=!ready;
+ const availability=m.controls(state);
+ for(const [type,reason] of Object.entries(availability)){
+  const button=$('lab-'+type);button.disabled=!!reason;button.title=reason;
+  $('lab-'+type+'-reason').textContent=reason;
+ }
+ const next=m.nextAction(state);$('lab-continue').textContent=next.label;
+ $('lab-next-help').textContent=ready?'绿色按钮给出当前可执行的下一步；左侧按钮用于自由实验。':'可一键完成第一课的六步组装，也可用左侧按钮逐步观察。';
+ $('lab-settle').textContent=state.plugin==='UNLOADING'?'完成卸载清理':state.plugin==='LOADING'?'完成插件初始化':'完成当前转换';
+
  $('lab-uid').textContent=state.uid?'教学 Fiber #'+state.uid:'未创建';$('lab-fiber').textContent=state.plugin;
  $('lab-fiber').dataset.state=state.plugin;
  $('lab-services').textContent=ready?'tools ✓ · systemPrompt ✓ · fs '+(state.fs?'✓':'缺席'):'等待宿主与会话绑定';
@@ -34,8 +43,9 @@ function render(){
  });
  const last=entries[entries.length-1];inspect(last?last.message:'从宿主组装开始，再观察消费者的依赖生命周期。',last?last.ref:'registry');
 }
+$('lab-continue').addEventListener('click',()=>{const action=m.nextAction(state);act(action);if(action.type==='reset')$('lab-draft').textContent='';});
 $('lab-boot').addEventListener('click',()=>act({type:'base',action:{type:'next'}}));
-$('lab-stop').addEventListener('click',()=>act({type:'base',action:{type:'stop'}}));
+$('lab-stop').addEventListener('click',()=>{act({type:'base',action:{type:'stop'}});$('lab-draft').textContent='宿主已停止；重置会清除任务草稿。';});
 $('lab-preset').addEventListener('change',()=>act({type:'preset',value:$('lab-preset').value}));
 for(const [id,type] of [['lab-install','install'],['lab-fs','fs'],['lab-settle','settle'],['lab-restart','restart'],['lab-dispose','dispose'],['lab-probe','probe']])$(id).addEventListener('click',()=>act({type}));
 $('lab-fail').addEventListener('change',()=>act({type:'fail',value:$('lab-fail').checked}));

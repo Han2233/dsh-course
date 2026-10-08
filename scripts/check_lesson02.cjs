@@ -36,3 +36,9 @@ for(const e of s.log)assert.ok(manifest.sources[e.ref],e.ref);
 for(const file of ['lesson02.js','workbench02-model.js'])execFileSync('node',['--check',path.join(root,'assets',file)]);
 assert.ok(!html.includes('data-quiz'));
 console.log('Lesson 02: both presets, 5 repeat restarts without duplicate contributions, dependency loss/recovery, teardown churn, partial startup failure, stop/reset, dispose from 5 states, references and DOM IDs passed.');
+// Reinstallation must never replace an instance while its cleanup is outstanding.
+let pending=m.reduce(host(),{type:'install'});pending=go(pending,'fs');pending=go(pending,'settle');pending=go(pending,'dispose');
+assert.match(m.controls(pending).install,/清理/);assert.equal(go(pending,'install'),pending);assert.equal(pending.resources.length,2);
+pending=go(pending,'settle');assert.equal(pending.resources.length,0);pending=go(pending,'install');assert.equal(pending.uid,2);
+let guided=m.initial();for(let i=0;i<4;i++)guided=m.reduce(guided,m.nextAction(guided));assert.equal(guided.plugin,'ACTIVE');
+console.log('Guided next-action and reinstall-before-cleanup regressions passed.');

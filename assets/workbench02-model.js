@@ -3,8 +3,38 @@
 'use strict';
 const base=typeof module!=='undefined'&&module.exports?require('./workbench01-model.js'):root.DSHWorkbench01;
 function initial(preset='standard'){return {base:base.initial(preset),fs:false,plugin:'ABSENT',installed:false,uid:0,resources:[],fail:false,target:null,log:[]};}
+function controls(s){
+ const ready=s.base.status==='bound';
+ const busy=['LOADING','UNLOADING'].includes(s.plugin);
+ const needHost='先完成宿主组装与会话绑定。';
+ return {
+  install:!ready?needHost:s.plugin==='UNLOADING'?'先完成卸载清理，再安装新实例。':s.installed?'当前实例已安装；可重启或卸载。':'',
+  fs:ready?'':needHost,
+  settle:!ready?needHost:!busy?'当前没有进行中的初始化或清理。':'',
+  restart:!ready?needHost:!s.installed?'先安装插件。':busy?'先完成当前转换。':'',
+  dispose:!ready?needHost:!s.installed?'当前没有可卸载的实例。':'',
+  probe:ready?'':needHost,
+ };
+}
+function nextAction(s){
+ if(['stopped','failed'].includes(s.base.status))return {label:'重新开始组装',type:'reset'};
+ if(s.base.status!=='bound')return {label:'一键完成宿主组装',type:'assemble'};
+ if(s.plugin==='UNLOADING')return {label:'完成卸载清理',type:'settle'};
+ if(s.plugin==='LOADING')return {label:'完成插件初始化',type:'settle'};
+ if(!s.installed)return {label:'安装教学插件',type:'install'};
+ if(s.plugin==='PENDING')return {label:'接通缺失的 fs 服务',type:'fs'};
+ if(s.plugin==='FAILED')return s.fail?{label:'关闭初始化故障',type:'fail',value:false}:{label:'重启失败的实例',type:'restart'};
+ return {label:'发送教学观察事件',type:'probe'};
+}
 function reduce(old,a){
  if(a.type==='reset')return initial(old.base.preset);
+ if(a.type==='assemble'){
+  if(['stopped','failed'].includes(old.base.status))return old;
+  let next=old;
+  while(next.base.stage<6)next=reduce(next,{type:'base',action:{type:'next'}});
+  return next;
+ }
+ if(Object.hasOwn(controls(old),a.type)&&controls(old)[a.type])return old;
  const s={...old,resources:[...old.resources],log:[...old.log]};
  const record=(message,ref='fiber-refresh')=>s.log.push({message,ref});
  const ready=s.base.status==='bound';
@@ -45,5 +75,5 @@ function reduce(old,a){
  }else return old;
  return s;
 }
-const api={initial,reduce};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.DSHWorkbench02=api;
+const api={initial,reduce,controls,nextAction};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.DSHWorkbench02=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
