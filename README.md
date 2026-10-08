@@ -2,7 +2,9 @@
 
 面向已有 Agent 基础的学习者，沿真实源码研究 DeepSeek Harness 的架构、机制与实现。共七节深度 HTML 课，每轮对话完成一节。
 
-- [课程首页](index.html)
+- [在线课程首页](https://han2233.github.io/dsh-course/)
+- [在线阅读第一课](https://han2233.github.io/dsh-course/lessons/01/)
+- [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
 - [固定版本的官方源码](https://github.com/deepseek-ai/deepseek-harness/tree/5badb15009ae1756c3afe0ae0cef1faafc290ccc)
@@ -57,3 +59,7 @@ node scripts/check_models.cjs
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
 
 当前浏览器视觉验收未完成：浏览器安全检查不可用，随后自动审批拒绝了重试。页面已做静态与逻辑检查；实际桌面及手机显示效果仍待浏览器验收。
+
+## 发布位置
+
+仓库：[Han2233/dsh-course](https://github.com/Han2233/dsh-course)。GitHub Pages 从 `main` 分支根目录发布，更新该分支会触发网站更新。后续课次在 `lessons/` 下增加独立目录，并更新首页和进度。
