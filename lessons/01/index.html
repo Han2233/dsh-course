@@ -6,6 +6,7 @@
 <meta name="description" content="从真实源码理解 DeepSeek Harness 的 Profile、Bundle、Preset、插件树与启动流程。包含配置覆盖、启动流程和 Preset 生命周期交互实验。">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23126b58'/%3E%3Cpath d='M16 17h13v13H16zm19 0h13v13H35zM16 36h13v13H16zm19 0h13v13H35z' fill='%23e5eee7'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="../../assets/course.css"><script src="sources.js" defer></script><script src="../../assets/lesson01-models.js" defer></script><script src="../../assets/lesson01.js" defer></script>
+<link rel="stylesheet" href="../../assets/workbench01.css"><script src="../../assets/workbench01-model.js" defer></script><script src="../../assets/workbench01.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">跳到课程正文</a>
@@ -14,11 +15,11 @@
 <a class="back" href="../../">← 七节课 · 课程总览</a>
 <div class="nav-label">LESSON 01 / 本课目录</div>
 <nav class="toc">
-<a href="#orientation"><b>01</b> 学习目标与全局位置</a><a href="#map"><b>02</b> 源码架构地图</a><a href="#concepts"><b>03</b> 四个概念，一棵运行树</a><a href="#boot"><b>04</b> 启动流程 · 逐步演示</a><a href="#patches"><b>05</b> 配置覆盖 · 动手实验</a><a href="#presets"><b>06</b> Preset · 版本与会话</a><a href="#case"><b>07</b> 串起一次真实任务</a><a href="#failures"><b>08</b> 故障、清理与排查</a><a href="#tradeoffs"><b>09</b> 特色设计与取舍</a><a href="#sources"><b>10</b> 源码阅读路线</a><a href="#check"><b>11</b> 图解回顾与术语</a>
+<a href="#orientation"><b>01</b> 学习目标与全局位置</a><a href="#map"><b>02</b> 源码架构地图</a><a href="#concepts"><b>03</b> 四个概念，一棵运行树</a><a href="#boot"><b>04</b> 启动流程 · 逐步演示</a><a href="#patches"><b>05</b> 配置覆盖 · 动手实验</a><a href="#presets"><b>06</b> Preset · 版本与会话</a><a href="#workbench"><b>搭建</b> Agent 学习工作台</a><a href="#case"><b>07</b> 串起一次真实任务</a><a href="#failures"><b>08</b> 故障、清理与排查</a><a href="#tradeoffs"><b>09</b> 特色设计与取舍</a><a href="#sources"><b>10</b> 源码阅读路线</a><a href="#check"><b>11</b> 图解回顾与术语</a>
 </nav>
 <div class="sidebar-foot"><progress id="reading-progress" max="100" value="0" aria-label="页面阅读位置"></progress><span id="reading-percent">阅读位置 0%</span><br>基于 0.2.1-alpha.1<br><a data-ref="commit" href="https://github.com/deepseek-ai/deepseek-harness/tree/5badb15009ae1756c3afe0ae0cef1faafc290ccc" target="_blank" rel="noopener">5badb15 · 固定源码快照</a></div>
 </aside>
-<div class="mobile-header"><a href="../../">dsh / 源码研读室</a><label><span class="sr-only">跳转到</span><select id="mobile-nav" aria-label="跳转到课程章节"><option value="">本课目录</option><option value="orientation">01 学习目标</option><option value="map">02 架构地图</option><option value="concepts">03 核心概念</option><option value="boot">04 启动演示</option><option value="patches">05 配置实验</option><option value="presets">06 Preset 实验</option><option value="case">07 完整任务</option><option value="failures">08 故障排查</option><option value="tradeoffs">09 设计取舍</option><option value="sources">10 源码路线</option><option value="check">11 图解回顾</option></select></label></div>
+<div class="mobile-header"><a href="../../">dsh / 源码研读室</a><label><span class="sr-only">跳转到</span><select id="mobile-nav" aria-label="跳转到课程章节"><option value="">本课目录</option><option value="orientation">01 学习目标</option><option value="map">02 架构地图</option><option value="concepts">03 核心概念</option><option value="boot">04 启动演示</option><option value="patches">05 配置实验</option><option value="presets">06 Preset 实验</option><option value="workbench">动手搭建 · Agent 工作台</option><option value="case">07 完整任务</option><option value="failures">08 故障排查</option><option value="tradeoffs">09 设计取舍</option><option value="sources">10 源码路线</option><option value="check">11 图解回顾</option></select></label></div>
 <main class="main" id="main">
 <div class="topline"><span>DSH SOURCE STUDY / 第一课</span><a href="https://github.com/Han2233/dsh-course" target="_blank" rel="noopener">课程仓库 ↗</a></div>
 <header class="hero">
@@ -29,6 +30,7 @@
 <div class="hero-bottom"><a href="#boot" class="text-link">直接进入启动演示 ↓</a><a href="#sources" class="text-link">打开源码阅读路线 ↓</a></div>
 </header>
 <noscript><p class="noscript">当前浏览器未启用 JavaScript。正文、源码摘录、静态流程和答案解析仍可阅读；三个交互实验需要启用 JavaScript。</p></noscript>
+<p class="note"><strong>新增：贯穿课程的 Agent 工作台。</strong>完成核心概念后，<a href="#workbench">进入三栏工作台，从组装开始搭建自己的教学 Agent →</a></p>
 <section class="lesson-section" id="orientation">
 <div class="section-no">01 / 先建立坐标</div><h2>从“会调用模型”到“能组装运行系统”</h2>
 <p>你已经了解 Agent 的基本循环：向模型提交上下文，接收回复或工具调用，执行工具，再把结果交给模型。本课研究的是这套循环运行之前，以及围绕它的工程问题：<strong>谁提供这些能力，谁把它们连起来，配置变化后谁负责维护它们？</strong></p>
@@ -164,6 +166,25 @@ Profile: { timeout: 60, retries: 2 }</pre></div><div><h4>组合完成后的条�
 <p>不一定。注册表会保存定义的激活失败信息，使它在列表中显示为不可用；健康定义和宿主仍可启动。实际尝试绑定坏定义时才会被拒绝。另一方面，如果 Preset 子树把应隔离的服务泄漏到根 Realm，挂载审计会拒绝它；仅有缺失宿主依赖时，还需要等宿主树稳定后再复核，避免把尚在启动的提供方过早判断为缺失。</p>
 <p class="evidence"><a data-ref="preset-mount" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/mount.ts#L134" target="_blank" rel="noopener">mountPreset / auditRows / leakedServices</a> · <a data-ref="preset-tests" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/tests/registry.spec.ts#L16-L115" target="_blank" rel="noopener">坏定义不阻断健康定义的测试</a></p>
 </section>
+<section class="lesson-section" id="workbench">
+<div class="section-no">动手搭建 / 01</div><h2>你的 Agent 工作台，从组装开始</h2>
+<p>这里是贯穿七课的教学 Agent。第一课先搭起宿主与会话骨架：配置应用、建立运行时、绑定能力。左侧看组成，中间看系统记录与任务草稿，右侧查看内部变化和源码。它会随着后续课程逐步增加插件控制、模型循环、工具、记忆和协作。</p>
+<div class="note"><strong>运行边界：</strong>这是浏览器内实际改变状态的教学模型，界面是课程设计，不是 dsh 原生界面的复刻。未运行 dsh、未连接模型、未读写本机文件。系统记录是教学里程碑，不是 dsh 原始日志；刷新页面会重置。正常路径假设依赖和配置都可用。</div>
+<div class="agent-workbench">
+<header class="wb-header"><div><span class="wb-mark">A</span><strong>Agent 学习工作台</strong><small>第一课快照 · 组装与绑定</small></div><span id="wb-status" role="status">待组装</span></header>
+<div class="wb-roadmap" aria-label="七课搭建路线"><span class="current">01 组装</span><span>02 插件</span><span>03 对话</span><span>04 工具</span><span>05 记忆</span><span>06 协作</span><span>07 扩展</span></div>
+<div class="wb-grid">
+<aside class="wb-config" aria-label="组装配置"><h3>应用组合</h3><div class="wb-profile"><b>web Profile</b><small>01 · dsh-base<br>02 · dsh-web-app</small><a data-ref="profiles" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/app-boot/src/profile.ts#L179-L196" target="_blank" rel="noopener">实际模板 ↗</a></div><label for="wb-preset">新会话使用的 Preset</label><select id="wb-preset"><option value="standard">standard · 文件 / Shell / Skills</option><option value="minimal">minimal · 精简人设 / 持久 Shell</option></select><p class="wb-hint">更换后观察绑定能力的差异。已启动时先重置；这是本工作台的操作限制，真实会话另有首轮前选择规则。</p><label class="wb-fault-label"><input type="checkbox" id="wb-fault">模拟根 Include 加载失败</label><h3>组件状态</h3><ul id="wb-components" class="wb-components"></ul></aside>
+<div class="wb-conversation"><div class="wb-session" id="wb-session">学习会话 · 尚未绑定</div><div class="wb-empty" id="wb-empty"><span aria-hidden="true">◌</span><h3>先给 Agent 安装运行骨架</h3><p>从下方“准备组合”开始。每一步都会更新组件、系统记录和右侧源码说明。</p></div><ol id="wb-events" class="wb-events" aria-label="教学系统记录"></ol><div class="wb-draft" id="wb-draft-preview" hidden><small>任务草稿 · 未发送</small><p id="wb-draft-text"></p></div><form id="wb-form"><label for="wb-task">贯穿七课的任务</label><textarea id="wb-task" rows="3" maxlength="2000" disabled>读取配置，修正错误，再运行检查。</textarea><button type="submit" id="wb-save-draft" disabled>保存任务草稿</button><p class="wb-hint" id="wb-task-help">完成启动与会话绑定后，可保存任务草稿。</p><p id="wb-draft-status" role="status" class="wb-hint"></p></form></div>
+<aside class="wb-inspector" aria-label="运行时检查器"><h3>内部发生了什么</h3><h4 id="wb-detail-title">待组装</h4><p id="wb-detail"></p><a id="wb-source" data-ref="profiles" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/app-boot/src/profile.ts#L179-L196" target="_blank" rel="noopener">对应实现 ↗</a><h3>当前会话的代表能力</h3><ul id="wb-capabilities"></ul><p class="wb-hint" id="wb-capability-note"></p><a id="wb-preset-source" data-ref="standard" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/bundle/web-app/presets/standard.patch.yml#L4" target="_blank" rel="noopener">所选 Preset 声明 ↗</a><div class="wb-meter"><b>模型请求：0</b><small>本课建立能力，还没有进入 Agent Loop。</small></div></aside>
+</div>
+<div class="wb-toolbar"><progress id="wb-progress" value="0" max="6" aria-label="六个搭建里程碑"></progress><div><button type="button" id="wb-next" class="primary">准备组合 →</button><button type="button" id="wb-stop" disabled>停止并释放</button><button type="button" id="wb-reset">重置工作台</button></div><p id="wb-summary" role="status"></p></div>
+</div>
+<p><strong>建议体验顺序：</strong>先用 Standard 完成启动并保存任务草稿；重置后改用 Minimal，对照能力清单；最后开启故障开关，观察为什么没有 appReady 和会话绑定。重新配置不会修改真实 dsh。</p>
+<p class="evidence">实现依据：<a data-ref="boot" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/app-boot/src/index.ts#L973-L1015" target="_blank" rel="noopener">boot 与失败清理</a> · <a data-ref="ready" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/apps/cli/src/profile-boot.ts#L314-L321" target="_blank" rel="noopener">就绪条件</a> · <a data-ref="agent-compose" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/api/session-controller/src/agent.ts#L381-L399" target="_blank" rel="noopener">Web 会话绑定</a> · <a data-ref="preset-select" href="https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L346-L362" target="_blank" rel="noopener">真实 Preset 切换边界</a>。第一课简化了覆盖层求值、并发激活和异步清理；上文实验继续提供这些机制的局部视图。</p>
+<noscript><p class="note">工作台需要 JavaScript。无脚本时可继续阅读本课静态图解与源码；搭建顺序为组合准备、Context / Loader、宿主服务、挂载与审计、appReady、会话绑定。</p></noscript>
+</section>
+
 <section class="lesson-section" id="case">
 <div class="section-no">07 / 把组装与任务连起来</div><h2>贯穿案例：修复文件，并运行检查</h2>
 <p class="intro">用户在 Web 中发出：“读取这个项目的配置文件，修正一个错误，再运行检查。”这是一条教学任务轨迹；模型具体会选择哪些工具、调用几次，并不是由本页预先决定的。</p>

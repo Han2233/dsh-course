@@ -25,6 +25,12 @@
 
 所有交互实验均为教学模拟，不连接真实模型或本机 dsh。
 
+## 贯穿课程的 Agent 工作台
+
+第一课新增三栏工作台：组装配置、教学系统记录 / 任务草稿、内部状态与源码。六步建立 Web 宿主与会话绑定，可比较 Standard / Minimal、模拟根 Include 加载失败、停止并释放、重置。所有状态仅保存在页面内存；没有模型请求、真实文件操作或 Shell 执行。
+
+第一课快照使用 `assets/workbench01-model.js`、`assets/workbench01.js` 和 `assets/workbench01.css`。后续课程在各自快照中逐步增加能力，保留早期课次行为。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
@@ -57,6 +63,7 @@ python3 -m http.server 4173 --bind 127.0.0.1
 python3 scripts/prepare_sources.py ../deepseek-harness
 python3 scripts/check_lesson.py
 node scripts/check_models.cjs
+node scripts/check_workbench.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
