@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id),m=window.DSHWorkbench04;
-let state,playback=null,scenario='normal',selectedRequest=-1,lastRequestCount=0,expanded=false;
+let transcriptKey='',state,playback=null,scenario='normal',selectedRequest=-1,lastRequestCount=0,expanded=false;
 const reducedMotion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)').matches:false;
 function ready(){let s=m.initial();for(const type of ['assemble','install','fs','settle'])s=m.reduce(s,{type});const configurations={normal:{},readonly:{mode:'read-only'},guard:{guard:true},post:{postBlock:true},deny:{policy:'deny'}};for(const [key,value] of Object.entries(configurations[scenario]))s=m.reduce(s,{type:'tool-config',key,value});return s;}
 function pause(){if(playback!==null)clearInterval(playback);playback=null;$('desk-play').textContent='自动推进';$('desk-play').setAttribute('aria-pressed','false');}
@@ -26,8 +26,8 @@ function render(){
  $('desk-progress').textContent=t?t.call.name+' · Step '+l.step:done?'工具实验 · '+l.outcome:'第 04 课 · 工具执行';
  $('desk-stage').textContent=info[0];$('desk-explain').textContent=info[1];$('desk-source').href=window.LESSON_SOURCES.sources[info[2]].url;
  $('desk-approval').hidden=!awaiting;$('desk-allow').disabled=!awaiting;$('desk-deny').disabled=!awaiting;
- $('desk-task').disabled=busy;
- $('desk-message').textContent=l.live||l.history.filter(x=>x.role==='assistant').at(-1)?.content.filter(c=>c.type==='text').map(c=>c.text).join('')||'模拟 Agent 将依次请求读取、修改、检查。';
+ $('desk-task').disabled=busy;$('desk-send').disabled=busy;
+ renderChat();
  $('desk-version').textContent='v'+e.version;$('desk-file').textContent=e.file;$('desk-observed').textContent='观察依据：'+(e.observed===null?'尚未读取':'v'+e.observed)+' · 环境：'+e.mode;
  $('desk-external').disabled=!busy;
  $('desk-effect').textContent=e.before?'已发生修改：timeout 0 → 30。即使取消或拦截结果，这项变化仍保留。':'尚未发生 Agent 修改。';
@@ -39,7 +39,28 @@ function render(){
  $('desk-cancel').disabled=!busy;$('desk-play').disabled=awaiting||done||reducedMotion;
  if(reducedMotion)$('desk-play').title='已开启减少动态效果，请单步推进。';
  $('desk-hint').textContent=awaiting?'请在任务区域作出本次审批选择。':done?'本轮已结束，可点击“重新开始”或切换实验情境。':playback!==null?'自动推进中；遇到审批会暂停。':'跟随高亮按钮，只观察本课工具执行阶段。';
- for(const id of ['desk-next','desk-reset']){const on=playback===null&&(done?id==='desk-reset':!awaiting&&id==='desk-next');if(on){$(id).setAttribute('data-recommended','true');$(id).setAttribute('aria-label','建议下一步：'+$(id).textContent);}else{$(id).removeAttribute('data-recommended');$(id).removeAttribute('aria-label');}}
+ for(const id of ['desk-next','desk-reset','desk-send']){const on=playback===null&&(done?id==='desk-reset':!awaiting&&id===(busy?'desk-next':'desk-send'));if(on){$(id).setAttribute('data-recommended','true');$(id).setAttribute('aria-label','建议下一步：'+$(id).textContent);}else{$(id).removeAttribute('data-recommended');$(id).removeAttribute('aria-label');}}
+}
+function renderChat(){
+ const messages=state.loop.history.filter(x=>['user','assistant','tool'].includes(x.role));
+ const key=JSON.stringify([messages,state.loop.live]);if(key===transcriptKey)return;
+ transcriptKey=key;
+ const chat=$('desk-chat'),top=chat.scrollTop||0,nearBottom=!chat.children.length||chat.scrollHeight-chat.clientHeight-top<48;
+ chat.replaceChildren();
+ const calls=new Map();
+ for(const message of messages){
+  const box=document.createElement('article'),label=document.createElement('small');box.className='desk-bubble '+message.role;
+  label.textContent=message.role==='user'?'你':message.role==='tool'?'工具结果 · '+(calls.get(message.callId)||'虚拟工具'):'模拟 Agent'+(message.interrupted?' · 已中断':'');box.append(label);
+  for(const item of message.content){
+   if(item.type==='tool-call'){
+    calls.set(item.id,item.name);const call=document.createElement('pre');call.className='desk-call';call.textContent='调用 '+item.name+'\n'+item.arguments;box.append(call);
+   }else if(item.type==='text'){const body=document.createElement('p');body.textContent=item.text;box.append(body);}
+  }
+  chat.append(box);
+ }
+ if(!messages.length){const welcome=document.createElement('p');welcome.className='desk-welcome';welcome.textContent='发送任务后，在这里观察 Agent 如何请求工具、接收结果并给出回复。前置框架已就绪。';chat.append(welcome);}
+ if(state.loop.live){const live=document.createElement('article');live.className='desk-bubble assistant';live.textContent='模拟 Agent · 输出中\n'+state.loop.live;chat.append(live);}
+ if(nearBottom||!messages.length)chat.scrollTop=chat.scrollHeight;else chat.scrollTop=top;
 }
 function inspect(){
  const e=state.env,value=$('desk-inspect').value||'result';$('desk-request-choice').hidden=value!=='request';
@@ -47,6 +68,7 @@ function inspect(){
  $('desk-inspection').textContent=(views[value]||views.result)();
 }
 $('desk-next').addEventListener('click',advance);
+$('desk-send').addEventListener('click',()=>{if(state.loop.phase==='idle')advance();});
 $('desk-play').addEventListener('click',()=>{if(playback!==null){pause();render();return;}if(reducedMotion)return;playback=setInterval(advance,1000);$('desk-play').textContent='暂停自动推进';$('desk-play').setAttribute('aria-pressed','true');render();});
 $('desk-cancel').addEventListener('click',()=>{pause();act({type:'loop-cancel'});});
 $('desk-reset').addEventListener('click',reset);
