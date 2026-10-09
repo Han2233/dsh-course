@@ -1,158 +1,68 @@
 (function(){
 'use strict';
-function recommend(ids, target){
- for(const id of ids){
-  const button=document.getElementById(id);
-  if(id===target&&!button.disabled){button.setAttribute('data-recommended','true');button.setAttribute('aria-label','建议下一步：'+button.textContent);}
-  else{button.removeAttribute('data-recommended');button.removeAttribute('aria-label');}
- }
+const $=id=>document.getElementById(id),m=window.DSHWorkbench04;
+let state,playback=null,scenario='normal',selectedRequest=-1,lastRequestCount=0,expanded=false;
+const reducedMotion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)').matches:false;
+function ready(){let s=m.initial();for(const type of ['assemble','install','fs','settle'])s=m.reduce(s,{type});const configurations={normal:{},readonly:{mode:'read-only'},guard:{guard:true},post:{postBlock:true},deny:{policy:'deny'}};for(const [key,value] of Object.entries(configurations[scenario]))s=m.reduce(s,{type:'tool-config',key,value});return s;}
+function pause(){if(playback!==null)clearInterval(playback);playback=null;$('desk-play').textContent='自动推进';$('desk-play').setAttribute('aria-pressed','false');}
+function reset(){pause();state=ready();selectedRequest=-1;lastRequestCount=0;render();}
+function act(action){state=m.reduce(state,action);render();}
+// The earlier lesson's loop runs intact, but only tool boundaries need manual clicks here.
+function advance(){
+ if(state.env.active?.stage==='approval')return;
+ if(state.loop.phase==='idle'){
+  const text=$('desk-task').value.trim();if(!text){pause();$('desk-hint').textContent='先填写任务文本。';return;}
+  state=m.reduce(state,{type:'loop-send',target:'followup',text});
+ }else if(state.loop.phase==='tool')state=m.reduce(state,{type:'loop-next'});
+ for(let i=0;i<40&&state.loop.phase!=='tool'&&!m.loopControl(state).disabled;i++)state=m.reduce(state,{type:'loop-next'});
+ if(state.loop.phase==='tool'&&!state.env.active)state=m.reduce(state,{type:'loop-next'});
+ render();
 }
-
-const $=id=>document.getElementById(id),m=window.DSHWorkbench04,b=window.DSHWorkbench01;
-let state=m.initial();
-let playback=null, selectedRequest=-1, lastRequestCount=0;
-const reducedMotion=window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
-function inspect(message,ref){$('lab-detail').textContent=message;$('lab-source').href=window.LESSON_SOURCES.sources[ref].url;}
-function act(action){
- if(action.type==='reset'||action.type==='loop-cancel'||(action.type==='base'&&action.action.type==='stop'))pause();
- if(action.type==='reset'){selectedRequest=-1;lastRequestCount=0;}
- state=m.reduce(state,action);render();
-}
+const labels={pre:['准入策略','根据本次调用决定 allow、deny 或 ask。','tool-prepare'],approval:['等待你的审批','同意一次或拒绝；两种分支都可以观察。','tool-ask'],guard:['单调守卫','审批同意后，强制 guard 仍然可以否决。','tool-guard'],execute:['执行工具','文件服务检查写入范围与版本，随后读取或修改内存。','tool-body'],post:['处理候选结果','后置策略可拦截结果；已经发生的修改不会因此回滚。','tool-post'],final:['提交最终结果','最终结果进入历史，循环自动衔接下一次模型请求。','tool-finish']};
 function render(){
- const ready=state.base.status==='bound', ended=['stopped','failed'].includes(state.base.status);
- $('lab-status').textContent=ready?'宿主已就绪 · 插件 '+state.plugin:ended?'宿主已停止':b.steps[state.base.stage][0];
- $('lab-preset').disabled=state.base.status!=='idle';
- $('lab-boot').disabled=ready||ended;$('lab-boot').textContent=ready?'六步组装已完成':ended?'重置后重新组装':'组装 '+(state.base.stage+1)+'/6 · '+b.steps[Math.min(6,state.base.stage+1)][0];
- $('lab-stop').disabled=!['running','ready','bound'].includes(state.base.status);
- $('lab-install').disabled=!ready||state.installed;
- $('lab-fs').disabled=!ready;$('lab-fs').textContent=state.fs?'撤掉 fs 服务':'接通 fs 服务';
- $('lab-settle').disabled=!ready||!['LOADING','UNLOADING'].includes(state.plugin);
- $('lab-restart').disabled=!ready||!state.installed||!['ACTIVE','FAILED','PENDING'].includes(state.plugin);
- $('lab-dispose').disabled=!ready||!state.installed;
- $('lab-fail').disabled=!ready;$('lab-fail').checked=state.fail;
- $('lab-probe').disabled=!ready;$('lab-save').disabled=!ready;$('lab-task').disabled=!ready;
- const availability=m.controls(state);
- for(const [type,reason] of Object.entries(availability)){
-  const button=$('lab-'+type);button.disabled=!!reason;button.title=reason;
-  $('lab-'+type+'-reason').textContent=reason;
- }
- const next=m.nextAction(state);$('lab-continue').textContent=next.label;
- $('lab-next-help').textContent=ready?'高亮按钮给出当前可执行的下一步；左侧按钮用于自由实验。':'可一键完成第一课的六步组装，也可用左侧按钮逐步观察。';
- $('lab-settle').textContent=state.plugin==='UNLOADING'?'完成卸载清理':state.plugin==='LOADING'?'完成插件初始化':'完成当前转换';
-
- $('lab-uid').textContent=state.uid?'教学 Fiber #'+state.uid:'未创建';$('lab-fiber').textContent=state.plugin;
- $('lab-fiber').dataset.state=state.plugin;
- $('lab-services').textContent=ready?'tools ✓ · systemPrompt ✓ · fs '+(state.fs?'✓':'缺席'):'等待宿主与会话绑定';
- $('lab-resources').textContent=state.resources.length?state.resources.join(' / '):'0 项';
- $('lab-caps').replaceChildren();(ready?b.capabilities[state.base.preset]:['尚未绑定 Preset']).forEach(t=>{const li=document.createElement('li');li.textContent=t;$('lab-caps').append(li);});
- const guides={ABSENT:'先安装教学插件，让它等待 fs。',PENDING:'缺少 fs 时，实例存在但不会注册能力。接通 fs 再完成转换。',LOADING:'依赖已就绪，初始化进行中。完成当前转换，观察登记的贡献。',ACTIVE:'能力已登记。发送观察事件，或撤掉 fs 再完成清理。',UNLOADING:'清理还没完成，旧贡献可能尚在。完成当前转换，查看归零后的状态。',FAILED:'初始化失败，已登记贡献已回滚。关闭故障后重启，再完成卸载与加载。',DISPOSED:'这个实例已经结束。恢复 fs 不会复活它；重新安装会创建新编号。'};
- $('lab-guide').textContent=ready?guides[state.plugin]:ended?'宿主停止会清理教学状态；重置后可以再试。':'先完成六步组装：沿用第一课的宿主与会话模型。';
- $('lab-log').replaceChildren();
- const entries=[...state.base.events.map(e=>({message:e.title+'：'+e.detail,ref:e.ref})),...state.log];
- entries.forEach((entry,i)=>{
-  const li=document.createElement('li'),button=document.createElement('button'),badge=document.createElement('small'),text=document.createElement('span');
-  button.type='button';badge.textContent='教学记录 '+String(i+1).padStart(2,'0');text.textContent=entry.message;button.append(badge,text);
-  button.setAttribute('aria-pressed',String(i===entries.length-1));
-  button.addEventListener('click',()=>{inspect(entry.message,entry.ref);$('lab-log').querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(el===button)));});li.append(button);$('lab-log').append(li);
- });
- const last=entries[entries.length-1];inspect(last?last.message:'从宿主组装开始，再观察消费者的依赖生命周期。',last?last.ref:'registry');
- renderLoop();
- renderEnvironment();
- renderRecommendation();
-}
-$('lab-continue').addEventListener('click',()=>{const action=m.nextAction(state);act(action);if(action.type==='reset')$('lab-draft').textContent='';});
-$('lab-boot').addEventListener('click',()=>act({type:'base',action:{type:'next'}}));
-$('lab-stop').addEventListener('click',()=>{act({type:'base',action:{type:'stop'}});$('lab-draft').textContent='宿主已停止；重置会清除任务草稿。';});
-$('lab-preset').addEventListener('change',()=>act({type:'preset',value:$('lab-preset').value}));
-for(const [id,type] of [['lab-install','install'],['lab-fs','fs'],['lab-settle','settle'],['lab-restart','restart'],['lab-dispose','dispose'],['lab-probe','probe']])$(id).addEventListener('click',()=>act({type}));
-$('lab-fail').addEventListener('change',()=>act({type:'fail',value:$('lab-fail').checked}));
-$('lab-reset').addEventListener('click',()=>{act({type:'reset'});$('lab-task').value='读取配置，修正错误，再运行检查。';$('lab-draft').textContent='';});
-$('lab-form').addEventListener('submit',event=>{event.preventDefault();if(state.base.status!=='bound')return;const text=$('lab-task').value.trim();if(!text){$('lab-draft').textContent='请填写任务草稿。';return;}act({type:'base',action:{type:'draft',text}});$('lab-draft').textContent='已保存，尚未开始 Turn：'+state.base.draft;});
-function pause(){if(playback!==null){clearInterval(playback);playback=null;}const button=$('loop-play');button.textContent='自动推进';button.setAttribute('aria-pressed','false');}
-function renderRecommendation(){
- const ready=state.base.status==='bound', control=m.loopControl(state), l=state.loop;
- let target='lab-continue', hint='跟随高亮按钮完成宿主组装与插件准备；其他按钮可自由实验。';
- if(state.env.active?.stage==='approval'){target=null;hint='等待模拟审批：请在下方审批卡选择同意一次或拒绝。两种选择均可观察，不替你作决定。';}
- else if(ready&&!control.disabled){target=playback===null?'loop-next':null;hint=playback===null?'任务已就绪：点击下方高亮的“'+control.label+'”，观察本次状态变化。':'正在自动推进；可点击“暂停自动推进”后继续单步观察。';}
- else if(ready&&(state.plugin==='ACTIVE'||l.turn>0||l.queueStep.length||l.queueTurn.length)){
-  target=$('loop-target').value==='inject'?'loop-target':'loop-send';
-  hint=target==='loop-target'?'inject 只排队、不唤醒。建议把发送方式改为 followup 或 steer，再发送任务。':l.outcome?'本轮已结束。可修改任务，再点击高亮按钮开始下一次观察。':'插件准备完成：填写任务，然后点击高亮按钮发送到教学 Inbox。';
- }
- recommend(['lab-continue','loop-send','loop-next','loop-target'],target);
- if(target==='loop-target')$('loop-target').setAttribute('aria-label','建议下一步：选择 followup 或 steer 发送方式');
- $('lab-next-help').textContent=hint;
-}
-function renderEnvironment(){
- const e=state.env, busy=state.loop.phase!=='idle', awaiting=e.active?.stage==='approval';
- $('tool-version').textContent='文件 v'+e.version+' / 已观察 '+(e.observed===null?'无':'v'+e.observed);
- $('tool-file').textContent=e.file;
- $('tool-diff').textContent=e.before===null?'尚无成功的虚拟修改。':'修改前：\n'+e.before+'\n\n当前文件：\n'+e.file;
- $('tool-policy').value=e.policy;$('tool-mode').value=e.mode;$('tool-guard').checked=e.guard;$('tool-post').checked=e.postBlock;
- for(const id of ['tool-policy','tool-mode','tool-guard','tool-post']){$(id).disabled=busy;$(id).title=busy?'本轮结束或取消后可修改条件。':'';}
- $('tool-external').disabled=state.base.status!=='bound';
- $('tool-approval').hidden=!awaiting;$('tool-allow').disabled=!awaiting;$('tool-deny').disabled=!awaiting;
- $('tool-call').textContent=e.active?e.active.call.name+'\n'+e.active.call.arguments:'';
- $('tool-stage').textContent=e.active?'本次 '+e.active.call.name+' · '+m.toolControl(state).label:'等待下一个工具调用；高亮按钮指向当前主线。';
- $('tool-result').textContent=JSON.stringify(e.active?.result||e.last||{note:'尚无执行结果'},null,2);
- $('tool-log').replaceChildren();
- for(const entry of e.log){const li=document.createElement('li');li.textContent=entry.stage+' — '+entry.detail;$('tool-log').append(li);}
-}
-for(const [id,key] of [['tool-policy','policy'],['tool-mode','mode'],['tool-guard','guard'],['tool-post','postBlock']])$(id).addEventListener('change',()=>act({type:'tool-config',key,value:['guard','postBlock'].includes(key)?$(id).checked:$(id).value}));
-$('tool-external').addEventListener('click',()=>act({type:'tool-external'}));
-$('tool-allow').addEventListener('click',()=>act({type:'tool-approval',value:'allow'}));
-$('tool-deny').addEventListener('click',()=>act({type:'tool-approval',value:'deny'}));
-function renderRequest(){const r=state.loop.requests[selectedRequest];$('loop-request').textContent=r?JSON.stringify(r,null,2):'尚未构建请求。';}
-function renderLoop(){
- const l=state.loop,control=m.loopControl(state),ready=state.base.status==='bound';
- $('loop-next').disabled=control.disabled;$('loop-next').textContent=control.label;$('loop-disabled').textContent=control.reason;
- $('loop-send').disabled=!ready;$('loop-target').disabled=!ready;
- $('loop-scenario').disabled=l.phase!=='idle';$('loop-scenario').value=l.scenario;
- $('loop-cancel').disabled=l.phase==='idle'&&!l.queueTurn.length&&!l.queueStep.length;
- $('loop-keep').checked=l.keepInbox;
- $('loop-play').disabled=control.disabled||reducedMotion;
- if(reducedMotion)$('loop-play').title='已开启减少动态效果，请使用单步推进。';
- if(control.disabled)pause();
- $('loop-counts').textContent='Turn '+l.turn+' / Step '+l.step+' / Attempt '+l.attempt;
- $('loop-outcome').textContent='教学请求 '+l.requestCount+' 次 · 真实请求与文件操作 0 次'+(l.outcome?' · 本轮 '+l.outcome:'');
- $('loop-guide').textContent=control.reason||control.label+'。模型文本为固定脚本，工具结果根据虚拟文件状态计算。';
- $('loop-queues').textContent=JSON.stringify({'next-turn':l.queueTurn,'next-step':l.queueStep},null,2);
- $('loop-chat').replaceChildren();
- for(const message of l.history.filter(x=>!['system','developer'].includes(x.role))){
-  const box=document.createElement('article'),label=document.createElement('small'),body=document.createElement('p');box.className='chat-message '+message.role;
-  label.textContent=message.role==='assistant'?'模拟 Agent'+(message.interrupted?' · 已中断':''):message.role==='tool'?'虚拟工具结果':'已接纳输入';
-  body.textContent=message.content.map(c=>c.type==='text'?c.text:'请求工具 '+c.name+' '+c.arguments).join('\n');box.append(label,body);$('loop-chat').append(box);
- }
- if(l.live){const live=document.createElement('article'),label=document.createElement('small'),body=document.createElement('p');live.className='chat-message live';label.textContent='模拟 Agent · 流式中，尚未结算';body.textContent=l.live;live.append(label,body);$('loop-chat').append(live);}
- if(!l.history.length&&!l.live){const p=document.createElement('p');p.className='wb-hint';p.textContent='完成组装后发送任务，从 Inbox 开始观察。未安装教学插件时将走纯文字路径。';$('loop-chat').append(p);}
+ const e=state.env,l=state.loop,t=e.active,awaiting=t?.stage==='approval',done=l.phase==='idle'&&!!l.outcome,busy=l.phase!=='idle';
+ if(awaiting||done)pause();
+ const info=t?labels[t.stage]:done?['本轮结束',l.outcome==='aborted'?'取消不会撤销已发生的修改。':'对照实际文件与最终结果；可重新开始另一个情境。','tool-finish']:['工具已就绪','前置框架已完成，从读取配置开始本课实验。','tool-runtime'];
+ $('desk-progress').textContent=t?t.call.name+' · Step '+l.step:done?'工具实验 · '+l.outcome:'第 04 课 · 工具执行';
+ $('desk-stage').textContent=info[0];$('desk-explain').textContent=info[1];$('desk-source').href=window.LESSON_SOURCES.sources[info[2]].url;
+ $('desk-approval').hidden=!awaiting;$('desk-allow').disabled=!awaiting;$('desk-deny').disabled=!awaiting;
+ $('desk-task').disabled=busy;
+ $('desk-message').textContent=l.live||l.history.filter(x=>x.role==='assistant').at(-1)?.content.filter(c=>c.type==='text').map(c=>c.text).join('')||'模拟 Agent 将依次请求读取、修改、检查。';
+ $('desk-version').textContent='v'+e.version;$('desk-file').textContent=e.file;$('desk-observed').textContent='观察依据：'+(e.observed===null?'尚未读取':'v'+e.observed)+' · 环境：'+e.mode;
+ $('desk-external').disabled=!busy;
+ $('desk-effect').textContent=e.before?'已发生修改：timeout 0 → 30。即使取消或拦截结果，这项变化仍保留。':'尚未发生 Agent 修改。';
  if(l.requests.length!==lastRequestCount){selectedRequest=l.requests.length-1;lastRequestCount=l.requests.length;}
- $('loop-request-choice').replaceChildren();
- if(!l.requests.length){const option=document.createElement('option');option.value='';option.textContent='尚无请求';$('loop-request-choice').append(option);}
- l.requests.forEach((r,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent='请求 '+(i+1)+' · '+r.messages.length+' 条消息 / '+r.tools.length+' 个工具';$('loop-request-choice').append(option);});
- $('loop-request-choice').value=selectedRequest<0?'':String(selectedRequest);renderRequest();
- $('loop-history').textContent=JSON.stringify(l.history,null,2);$('loop-events').textContent=JSON.stringify({events:l.events,frames:l.frames},null,2);
+ $('desk-request-choice').replaceChildren();
+ l.requests.forEach((r,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent='请求 '+(i+1)+' · '+r.messages.length+' 条消息';$('desk-request-choice').append(option);});
+ $('desk-request-choice').value=selectedRequest<0?'':String(selectedRequest);inspect();
+ $('desk-next').textContent=done?'再次运行任务':t?m.toolControl(state).label:'开始读取配置';$('desk-next').disabled=awaiting;
+ $('desk-cancel').disabled=!busy;$('desk-play').disabled=awaiting||done||reducedMotion;
+ if(reducedMotion)$('desk-play').title='已开启减少动态效果，请单步推进。';
+ $('desk-hint').textContent=awaiting?'请在任务区域作出本次审批选择。':done?'本轮已结束，可点击“重新开始”或切换实验情境。':playback!==null?'自动推进中；遇到审批会暂停。':'跟随高亮按钮，只观察本课工具执行阶段。';
+ for(const id of ['desk-next','desk-reset']){const on=playback===null&&(done?id==='desk-reset':!awaiting&&id==='desk-next');if(on){$(id).setAttribute('data-recommended','true');$(id).setAttribute('aria-label','建议下一步：'+$(id).textContent);}else{$(id).removeAttribute('data-recommended');$(id).removeAttribute('aria-label');}}
 }
-$('loop-send').addEventListener('click',()=>{
- const text=$('lab-task').value.trim();if(!text){$('loop-send-status').textContent='先填写任务文本。';return;}
- if(state.base.status!=='bound')return;
- act({type:'loop-send',text,target:$('loop-target').value});
- $('loop-send-status').textContent='已入队。请单步或自动推进；固定脚本只演示机制，不理解自由文本。';
-});
-$('loop-target').addEventListener('change',renderRecommendation);
-$('loop-next').addEventListener('click',()=>act({type:'loop-next'}));
-$('loop-scenario').addEventListener('change',()=>act({type:'loop-scenario',value:$('loop-scenario').value}));
-$('loop-keep').addEventListener('change',()=>act({type:'loop-keep',value:$('loop-keep').checked}));
-$('loop-cancel').addEventListener('click',()=>act({type:'loop-cancel'}));
-$('loop-request-choice').addEventListener('change',()=>{selectedRequest=Number($('loop-request-choice').value);renderRequest();});
-$('loop-play').addEventListener('click',()=>{
- if(playback!==null){pause();renderRecommendation();return;}
- if(reducedMotion||m.loopControl(state).disabled)return;
- $('loop-play').textContent='暂停自动推进';$('loop-play').setAttribute('aria-pressed','true');
- playback=setInterval(()=>act({type:'loop-next'}),1000);renderRecommendation();
-});
-const presentations={native:{explain:'模型分步选择 read、edit、check；每次工具结果进入后续请求。这里示意四次模型请求。',code:'模型请求 1 → demo.read({path: "config.json"})\n模型请求 2 → demo.edit({path: "config.json", timeout: 30})\n模型请求 3 → demo.check({command: "check-config"})\n模型请求 4 → 根据结果总结'},ptc:{explain:'模型提交一段程序，子调用仍经过工具流水线；外层回传精选结果。这里只对照编排，不执行代码。',code:'// 教学伪代码：使用本课 demo 工具的规范值\nconst file = await tools["demo.read"]({path: "config.json"});\nconst config = JSON.parse(file.text);\nif (config.timeout === 0) {\n  await tools["demo.edit"]({path: "config.json", timeout: 30});\n}\nconst check = await tools["demo.check"]({command: "check-config"});\nreturn {exitCode: check.exitCode, summary: check.stdout};'}};
+function inspect(){
+ const e=state.env,value=$('desk-inspect').value||'result';$('desk-request-choice').hidden=value!=='request';
+ const views={result:()=>JSON.stringify({call:e.active?.call||null,result:e.active?.result||e.last||'尚无结果'},null,2),diff:()=>e.before===null?'尚无成功修改。':'修改前：\n'+e.before+'\n\n当前：\n'+e.file,trace:()=>e.log.map(x=>x.stage+' — '+x.detail).join('\n\n')||'尚无工具事件。',request:()=>JSON.stringify(state.loop.requests[selectedRequest]||'尚未构建请求',null,2),history:()=>JSON.stringify(state.loop.history,null,2)};
+ $('desk-inspection').textContent=(views[value]||views.result)();
+}
+$('desk-next').addEventListener('click',advance);
+$('desk-play').addEventListener('click',()=>{if(playback!==null){pause();render();return;}if(reducedMotion)return;playback=setInterval(advance,1000);$('desk-play').textContent='暂停自动推进';$('desk-play').setAttribute('aria-pressed','true');render();});
+$('desk-cancel').addEventListener('click',()=>{pause();act({type:'loop-cancel'});});
+$('desk-reset').addEventListener('click',reset);
+$('desk-scenario').addEventListener('change',()=>{scenario=$('desk-scenario').value;reset();});
+$('desk-allow').addEventListener('click',()=>act({type:'tool-approval',value:'allow'}));
+$('desk-deny').addEventListener('click',()=>act({type:'tool-approval',value:'deny'}));
+$('desk-external').addEventListener('click',()=>act({type:'tool-external'}));
+$('desk-inspect').addEventListener('change',inspect);
+$('desk-request-choice').addEventListener('change',()=>{selectedRequest=Number($('desk-request-choice').value);inspect();});
+for(const view of ['task','file','inspect'])$('view-'+view).addEventListener('click',()=>{$('agent-desk').setAttribute('data-mobile-view',view);for(const other of ['task','file','inspect'])$('view-'+other).setAttribute('aria-pressed',String(other===view));});
+function expand(value){expanded=value;$('agent-desk').classList.toggle('is-expanded',value);$('desk-expand').textContent=value?'退出专注 · Esc':'专注模式';$('desk-expand').setAttribute('aria-pressed',String(value));document.body.classList.toggle('desk-focused',value);}
+$('desk-expand').addEventListener('click',()=>expand(!expanded));window.addEventListener('keydown',event=>{if(event.key==='Escape'&&expanded)expand(false);});
+const presentations={native:{explain:'模型分步选择 read、edit、check；工具结果进入后续请求。',code:'模型请求 1 → demo.read({path: "config.json"})\n模型请求 2 → demo.edit({path: "config.json", timeout: 30})\n模型请求 3 → demo.check({command: "check-config"})\n模型请求 4 → 根据结果总结'},ptc:{explain:'模型提交程序，子调用仍经过工具流水线；外层回传精选结果。此处只对照，不执行。',code:'// 教学伪代码\nconst file = await tools["demo.read"]({path: "config.json"});\nif (JSON.parse(file.text).timeout === 0) {\n  await tools["demo.edit"]({path: "config.json", timeout: 30});\n}\nreturn await tools["demo.check"]({command: "check-config"});'}};
 function mode(value){for(const key of ['native','ptc'])$('mode-'+key).setAttribute('aria-pressed',String(key===value));$('mode-explain').textContent=presentations[value].explain;$('mode-code').textContent=presentations[value].code;}
 $('mode-native').addEventListener('click',()=>mode('native'));$('mode-ptc').addEventListener('click',()=>mode('ptc'));mode('native');
-window.addEventListener('pagehide',pause);render();
+window.addEventListener('pagehide',pause);reset();
 $('mobile-nav').addEventListener('change',()=>{if($('mobile-nav').value)location.hash=$('mobile-nav').value;});
 const sections=[...document.querySelectorAll('.lesson-section')];let scheduled=false;
 function reading(){const max=document.documentElement.scrollHeight-innerHeight;const percent=max>0?Math.max(0,Math.min(100,scrollY/max*100)):100;$('reading-progress').value=percent;$('reading-percent').textContent='阅读位置 '+Math.round(percent)+'%';let current=sections[0];for(const s of sections)if(s.getBoundingClientRect().top<160)current=s;document.querySelectorAll('.toc a').forEach(a=>{const active=a.hash==='#'+current.id;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});scheduled=false;}

@@ -15,29 +15,30 @@ class Element{
 const html=fs.readFileSync(path.join(root,'lessons/04/index.html'),'utf8');
 const nodes=Object.fromEntries([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>[m[1],new Element()]));
 const section=new Element();section.id='workbench';
-const sandbox={document:{getElementById:id=>nodes[id],createElement:tag=>{const e=new Element();e.tag=tag;return e;},querySelectorAll:sel=>sel==='.lesson-section'?[section]:[],documentElement:{scrollHeight:1000}},innerHeight:600,scrollY:0,location:{},addEventListener(){},requestAnimationFrame:fn=>fn()};
+const sandbox={document:{body:new Element(),getElementById:id=>nodes[id],createElement:tag=>{const e=new Element();e.tag=tag;return e;},querySelectorAll:sel=>sel==='.lesson-section'?[section]:[],documentElement:{scrollHeight:1000}},innerHeight:600,scrollY:0,location:{},addEventListener(){},requestAnimationFrame:fn=>fn()};
 sandbox.structuredClone=structuredClone;sandbox.setInterval=()=>1;sandbox.clearInterval=()=>{};sandbox.matchMedia=()=>({matches:false});sandbox.window=sandbox;vm.createContext(sandbox);
 for(const file of ['lessons/04/sources.js','assets/workbench01-model.js','assets/workbench02-model.js','assets/workbench04-model.js','assets/lesson04.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),sandbox,{filename:file});
 function highlighted(id){const entries=Object.entries(nodes).filter(([,n])=>n.attributes['data-recommended']==='true');assert.deepEqual(entries.map(([key])=>key),id?[id]:[]);if(id)assert.equal(nodes[id].disabled,false);}
-highlighted('lab-continue');
-for(let i=0;i<4;i++)nodes['lab-continue'].click();
-highlighted('loop-send');assert.equal(nodes['lab-fiber'].textContent,'ACTIVE');
-nodes['lab-task'].value='Read edit check';nodes['loop-target'].value='followup';nodes['loop-send'].click();highlighted('loop-next');
-for(let i=0;i<100&&nodes['tool-approval'].hidden;i++)nodes['loop-next'].click();
-assert.equal(nodes['tool-approval'].hidden,false);assert.equal(nodes['loop-next'].disabled,true);highlighted(null);
-assert.equal(nodes['tool-allow'].disabled,false);assert.equal(nodes['tool-deny'].disabled,false);
-assert.equal(JSON.parse(nodes['tool-file'].textContent).timeout,0);
-nodes['tool-allow'].click();highlighted('loop-next');
-for(let i=0;i<150&&!nodes['loop-next'].disabled;i++)nodes['loop-next'].click();
-assert.equal(JSON.parse(nodes['tool-file'].textContent).timeout,30);assert.match(nodes['tool-result'].textContent,/PASS/);highlighted('loop-send');
-assert.match(nodes['tool-diff'].textContent,/"timeout": 0/);assert.match(nodes['tool-diff'].textContent,/"timeout": 30/);
-assert.equal(nodes['loop-request-choice'].children.length,4);
-nodes['mode-ptc'].click();assert.match(nodes['mode-code'].textContent,/await tools/);assert.equal(nodes['mode-ptc'].attributes['aria-pressed'],'true');
-nodes['mode-native'].click();assert.equal(nodes['mode-native'].attributes['aria-pressed'],'true');
-nodes['lab-reset'].click();assert.equal(JSON.parse(nodes['tool-file'].textContent).timeout,0);assert.match(nodes['tool-version'].textContent,/v1/);highlighted('lab-continue');
-for(let i=0;i<4;i++)nodes['lab-continue'].click();nodes['loop-send'].click();
-for(let i=0;i<100&&nodes['tool-approval'].hidden;i++)nodes['loop-next'].click();
-nodes['tool-deny'].click();for(let i=0;i<150&&!nodes['loop-next'].disabled;i++)nodes['loop-next'].click();
-assert.match(nodes['tool-result'].textContent,/APPROVAL_REJECTED/);assert.equal(JSON.parse(nodes['tool-file'].textContent).timeout,0);
-nodes['tool-mode'].value='read-only';nodes['tool-mode'].handlers.change();assert.equal(nodes['tool-mode'].value,'read-only');
-console.log('Lesson 04 UI handlers: guided assembly/send/pipeline, neutral approval pause, allow/reject, live file/diff/result, snapshot selector, presentation tabs, reset and config passed (DOM test double, not browser visual QA).');
+function nextUntil(predicate){for(let i=0;i<70&&!predicate();i++){assert.equal(nodes['desk-next'].disabled,false);nodes['desk-next'].click();}assert.ok(predicate());}
+function completed(){return nodes['desk-next'].textContent==='再次运行任务';}
+nodes['desk-task'].value='Read edit check';
+highlighted('desk-next');assert.match(nodes['desk-stage'].textContent,/就绪/);assert.equal(nodes['desk-cancel'].disabled,true);
+nodes['desk-next'].click();assert.match(nodes['desk-progress'].textContent,/demo.read/);assert.equal(nodes['desk-task'].disabled,true);
+nextUntil(()=>!nodes['desk-approval'].hidden);highlighted(null);assert.equal(nodes['desk-next'].disabled,true);assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,0);
+nodes['desk-allow'].click();highlighted('desk-next');nextUntil(completed);assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,30);highlighted('desk-reset');assert.match(nodes['desk-inspection'].textContent,/PASS/);
+assert.equal(nodes['desk-request-choice'].children.length,4);
+nodes['desk-inspect'].value='request';nodes['desk-inspect'].handlers.change();assert.equal(nodes['desk-request-choice'].hidden,false);nodes['desk-request-choice'].value='0';nodes['desk-request-choice'].handlers.change();assert.equal(JSON.parse(nodes['desk-inspection'].textContent).messages.filter(m=>m.role==='tool').length,0);
+nodes['desk-inspect'].value='diff';nodes['desk-inspect'].handlers.change();assert.match(nodes['desk-inspection'].textContent,/"timeout": 0/);assert.match(nodes['desk-inspection'].textContent,/"timeout": 30/);
+nodes['desk-expand'].click();assert.equal(nodes['desk-expand'].attributes['aria-pressed'],'true');nodes['desk-expand'].click();assert.equal(nodes['desk-expand'].attributes['aria-pressed'],'false');
+nodes['view-file'].click();assert.equal(nodes['agent-desk'].attributes['data-mobile-view'],'file');assert.equal(nodes['view-task'].attributes['aria-pressed'],'false');nodes['view-task'].click();
+nodes['desk-reset'].click();assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,0);highlighted('desk-next');
+nextUntil(()=>!nodes['desk-approval'].hidden);nodes['desk-deny'].click();nextUntil(completed);nodes['desk-inspect'].value='result';nodes['desk-inspect'].handlers.change();assert.match(nodes['desk-inspection'].textContent,/APPROVAL_REJECTED/);assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,0);
+for(const [scenario,error,timeout] of [['readonly','FS_SANDBOX_DENIED',0],['guard','GUARD_DENIED',0],['post','POST_BLOCKED',30],['deny','POLICY_DENIED',0]]){
+ nodes['desk-scenario'].value=scenario;nodes['desk-scenario'].handlers.change();assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,0);
+ for(let i=0;i<70&&!completed();i++){if(!nodes['desk-approval'].hidden)nodes['desk-allow'].click();else nodes['desk-next'].click();}
+ assert.ok(completed());assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,timeout);assert.match(nodes['desk-inspection'].textContent,new RegExp(error));
+}
+nodes['desk-scenario'].value='normal';nodes['desk-scenario'].handlers.change();nextUntil(()=>!nodes['desk-approval'].hidden);nodes['desk-external'].click();nodes['desk-allow'].click();nextUntil(completed);assert.match(nodes['desk-inspection'].textContent,/FS_CONFLICT/);
+nodes['desk-reset'].click();nodes['desk-next'].click();nodes['desk-cancel'].click();assert.ok(completed());assert.equal(JSON.parse(nodes['desk-file'].textContent).timeout,0);
+nodes['mode-ptc'].click();assert.match(nodes['mode-code'].textContent,/await tools/);
+console.log('Compact lesson 04 UI: ready prerequisites, tool-only steps, approval, all scenarios, conflict, cancellation, reset, inspector, focus/mobile toggles and guidance passed. DOM test double, not browser visual QA.');
