@@ -99,3 +99,5 @@ node scripts/check_controls03.cjs
 ## 发布位置
 
 仓库：[Han2233/dsh-course](https://github.com/Han2233/dsh-course)。GitHub Pages 从 `main` 分支根目录发布，更新该分支会触发网站更新。后续课次在 `lessons/` 下增加独立目录，并更新首页和进度。
+
+- 交互引导：前三课工作台以高亮边框和“建议下一步”标签标出当前推荐操作；第三课贯穿插件准备、发送和模型循环，自动播放时暂停手动推荐。

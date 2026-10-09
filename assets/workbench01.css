@@ -2,3 +2,24 @@
 @media(max-width:1250px){.wb-grid{grid-template-columns:minmax(180px,1fr) minmax(260px,1.8fr)}.wb-inspector{grid-column:1/-1;border-left:0;border-top:1px solid #dce3da}.wb-conversation{min-height:480px}}
 @media(max-width:650px){.wb-header{align-items:flex-start;flex-direction:column}.wb-grid{grid-template-columns:1fr}.wb-config{border-right:0;border-bottom:1px solid #dce3da}.wb-grid>aside,.wb-conversation{padding:17px}.wb-components{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.wb-conversation{min-height:400px}.wb-toolbar>div{display:grid;grid-template-columns:1fr 1fr}.wb-toolbar .primary{grid-column:1/-1}.wb-roadmap{gap:3px;padding:10px}}
 @media print{.wb-grid{display:block}.wb-conversation{min-height:0}.wb-toolbar button,.wb-conversation form{display:none}.agent-workbench{box-shadow:none}}
+
+/* Persistent, non-flashing guidance; text makes the cue independent of color. */
+.agent-workbench [data-recommended="true"] {
+ border: 2px solid #986219;
+ background: #fff0c9;
+ color: #3d2a0d;
+ box-shadow: 0 0 0 4px #d6a64440;
+ font-weight: 750;
+}
+.agent-workbench button[data-recommended="true"]::before {
+ content: "建议下一步 →";
+ display: block;
+ font-size: .72rem;
+ letter-spacing: .04em;
+ margin-bottom: .2rem;
+}
+.agent-workbench [data-recommended="true"]:hover { background: #ffe6a7; }
+.agent-workbench [data-recommended="true"]:focus-visible { outline: 3px solid #245e50; outline-offset: 5px; }
+@media (forced-colors: active) {
+ .agent-workbench [data-recommended="true"] { outline: 3px solid Highlight; outline-offset: 3px; }
+}

@@ -45,3 +45,28 @@ nodes['lab-task'].value='取消测试';nodes['loop-send'].click();
 for(let i=0;i<4;i++)nodes['loop-next'].click();nodes['loop-cancel'].click();
 assert.match(nodes['loop-outcome'].textContent,/aborted/);assert.equal(nodes['loop-next'].disabled,true);
 console.log('Lesson 03 UI wiring: inherited plugin controls, full task, request selection, reset, stream cancellation passed (DOM test double, not visual QA).');
+
+// Guidance follows the actionable path without recommending disabled controls.
+function recommended(id){
+ const active=Object.entries(nodes).filter(([,e])=>e.attributes['data-recommended']==='true');
+ assert.deepEqual(active.map(([key])=>key),id?[id]:[]);
+ if(id){assert.equal(nodes[id].disabled,false);assert.match(nodes[id].attributes['aria-label'],/建议下一步/);}
+}
+nodes['lab-reset'].click();recommended('lab-continue');
+nodes['lab-continue'].click();recommended('lab-continue');
+nodes['lab-continue'].click();recommended('lab-continue');
+nodes['lab-continue'].click();recommended('lab-continue');
+nodes['lab-continue'].click();recommended('loop-send');
+nodes['lab-task'].value='Observe loop';nodes['loop-target'].value='followup';
+nodes['loop-send'].click();recommended('loop-next');
+nodes['loop-play'].click();recommended(null);
+nodes['loop-play'].click();recommended('loop-next');
+for(let i=0;i<60&&!nodes['loop-next'].disabled;i++){recommended('loop-next');nodes['loop-next'].click();}
+recommended('loop-send');
+nodes['loop-target'].value='inject';nodes['loop-target'].handlers.change();recommended('loop-target');
+nodes['loop-send'].click();recommended('loop-target');
+nodes['loop-target'].value='steer';nodes['loop-target'].handlers.change();recommended('loop-send');
+nodes['loop-send'].click();recommended('loop-next');
+nodes['loop-next'].click();nodes['loop-cancel'].click();recommended('loop-send');
+nodes['lab-stop'].click();recommended('lab-continue');
+console.log('Guidance passed: single enabled recommendation, setup, send, all loop steps, playback/pause, completion, inject wake-up, cancellation and stop.');

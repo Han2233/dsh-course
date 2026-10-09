@@ -1,5 +1,13 @@
 (function(){
 'use strict';
+function recommend(ids, target){
+ for(const id of ids){
+  const button=document.getElementById(id);
+  if(id===target&&!button.disabled){button.setAttribute('data-recommended','true');button.setAttribute('aria-label','建议下一步：'+button.textContent);}
+  else{button.removeAttribute('data-recommended');button.removeAttribute('aria-label');}
+ }
+}
+
 const get=id=>document.getElementById(id), model=window.DSHWorkbench01;
 let state=model.initial();
 function source(anchor,ref){anchor.href=window.LESSON_SOURCES.sources[ref].url;}
@@ -44,6 +52,7 @@ function render(){
  get('wb-task').disabled=!v.bound;
  get('wb-task-help').textContent=v.bound?'可把任务放入草稿。第三课再接入模拟模型循环；本课不会发送模型请求。':'完成启动与会话绑定后，可保存任务草稿。';
  get('wb-summary').textContent=v.bound?'本课成果：应用已组装、宿主已就绪、会话已绑定 '+state.preset+'。下一课将把插件依赖和卸载过程展开。':dead?'当前没有活跃会话。可重置后取消故障开关，再观察正常启动。':'跟随按钮完成六个组装里程碑；点击系统记录可以回看内部变化。';
+ recommend(['wb-next','wb-reset','wb-save-draft'],dead?'wb-reset':!v.bound?'wb-next':!state.draft?'wb-save-draft':null);
  inspect(state.events.length-1);
 }
 get('wb-next').addEventListener('click',()=>dispatch({type:'next'}));

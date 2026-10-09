@@ -1,5 +1,13 @@
 (function(){
 'use strict';
+function recommend(ids, target){
+ for(const id of ids){
+  const button=document.getElementById(id);
+  if(id===target&&!button.disabled){button.setAttribute('data-recommended','true');button.setAttribute('aria-label','建议下一步：'+button.textContent);}
+  else{button.removeAttribute('data-recommended');button.removeAttribute('aria-label');}
+ }
+}
+
 const $=id=>document.getElementById(id),m=window.DSHWorkbench02,b=window.DSHWorkbench01;
 let state=m.initial();
 function inspect(message,ref){$('lab-detail').textContent=message;$('lab-source').href=window.LESSON_SOURCES.sources[ref].url;}
@@ -22,8 +30,10 @@ function render(){
   const button=$('lab-'+type);button.disabled=!!reason;button.title=reason;
   $('lab-'+type+'-reason').textContent=reason;
  }
+ recommend(['lab-continue'],null);
  const next=m.nextAction(state);$('lab-continue').textContent=next.label;
- $('lab-next-help').textContent=ready?'绿色按钮给出当前可执行的下一步；左侧按钮用于自由实验。':'可一键完成第一课的六步组装，也可用左侧按钮逐步观察。';
+ recommend(['lab-continue'],'lab-continue');
+ $('lab-next-help').textContent=ready?'带“建议下一步”标签的按钮会随状态更新；左侧按钮用于自由实验。':'可一键完成第一课的六步组装，也可用左侧按钮逐步观察。';
  $('lab-settle').textContent=state.plugin==='UNLOADING'?'完成卸载清理':state.plugin==='LOADING'?'完成插件初始化':'完成当前转换';
 
  $('lab-uid').textContent=state.uid?'教学 Fiber #'+state.uid:'未创建';$('lab-fiber').textContent=state.plugin;

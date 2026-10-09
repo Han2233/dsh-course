@@ -1,5 +1,13 @@
 (function(){
 'use strict';
+function recommend(ids, target){
+ for(const id of ids){
+  const button=document.getElementById(id);
+  if(id===target&&!button.disabled){button.setAttribute('data-recommended','true');button.setAttribute('aria-label','建议下一步：'+button.textContent);}
+  else{button.removeAttribute('data-recommended');button.removeAttribute('aria-label');}
+ }
+}
+
 const $=id=>document.getElementById(id),m=window.DSHWorkbench03,b=window.DSHWorkbench01;
 let state=m.initial();
 let playback=null, selectedRequest=-1, lastRequestCount=0;
@@ -49,6 +57,7 @@ function render(){
  });
  const last=entries[entries.length-1];inspect(last?last.message:'从宿主组装开始，再观察消费者的依赖生命周期。',last?last.ref:'registry');
  renderLoop();
+ renderRecommendation();
 }
 $('lab-continue').addEventListener('click',()=>{const action=m.nextAction(state);act(action);if(action.type==='reset')$('lab-draft').textContent='';});
 $('lab-boot').addEventListener('click',()=>act({type:'base',action:{type:'next'}}));
@@ -59,6 +68,18 @@ $('lab-fail').addEventListener('change',()=>act({type:'fail',value:$('lab-fail')
 $('lab-reset').addEventListener('click',()=>{act({type:'reset'});$('lab-task').value='读取配置，修正错误，再运行检查。';$('lab-draft').textContent='';});
 $('lab-form').addEventListener('submit',event=>{event.preventDefault();if(state.base.status!=='bound')return;const text=$('lab-task').value.trim();if(!text){$('lab-draft').textContent='请填写任务草稿。';return;}act({type:'base',action:{type:'draft',text}});$('lab-draft').textContent='已保存，尚未开始 Turn：'+state.base.draft;});
 function pause(){if(playback!==null){clearInterval(playback);playback=null;}const button=$('loop-play');button.textContent='自动推进';button.setAttribute('aria-pressed','false');}
+function renderRecommendation(){
+ const ready=state.base.status==='bound', control=m.loopControl(state), l=state.loop;
+ let target='lab-continue', hint='跟随高亮按钮完成宿主组装与插件准备；其他按钮可自由实验。';
+ if(ready&&!control.disabled){target=playback===null?'loop-next':null;hint=playback===null?'任务已就绪：点击下方高亮的“'+control.label+'”，观察本次状态变化。':'正在自动推进；可点击“暂停自动推进”后继续单步观察。';}
+ else if(ready&&(state.plugin==='ACTIVE'||l.turn>0||l.queueStep.length||l.queueTurn.length)){
+  target=$('loop-target').value==='inject'?'loop-target':'loop-send';
+  hint=target==='loop-target'?'inject 只排队、不唤醒。建议把发送方式改为 followup 或 steer，再发送任务。':l.outcome?'本轮已结束。可修改任务，再点击高亮按钮开始下一次观察。':'插件准备完成：填写任务，然后点击高亮按钮发送到教学 Inbox。';
+ }
+ recommend(['lab-continue','loop-send','loop-next','loop-target'],target);
+ if(target==='loop-target')$('loop-target').setAttribute('aria-label','建议下一步：选择 followup 或 steer 发送方式');
+ $('lab-next-help').textContent=hint;
+}
 function renderRequest(){const r=state.loop.requests[selectedRequest];$('loop-request').textContent=r?JSON.stringify(r,null,2):'尚未构建请求。';}
 function renderLoop(){
  const l=state.loop,control=m.loopControl(state),ready=state.base.status==='bound';
@@ -95,16 +116,17 @@ $('loop-send').addEventListener('click',()=>{
  act({type:'loop-send',text,target:$('loop-target').value});
  $('loop-send-status').textContent='已入队。请单步或自动推进；固定脚本只演示机制，不理解自由文本。';
 });
+$('loop-target').addEventListener('change',renderRecommendation);
 $('loop-next').addEventListener('click',()=>act({type:'loop-next'}));
 $('loop-scenario').addEventListener('change',()=>act({type:'loop-scenario',value:$('loop-scenario').value}));
 $('loop-keep').addEventListener('change',()=>act({type:'loop-keep',value:$('loop-keep').checked}));
 $('loop-cancel').addEventListener('click',()=>act({type:'loop-cancel'}));
 $('loop-request-choice').addEventListener('change',()=>{selectedRequest=Number($('loop-request-choice').value);renderRequest();});
 $('loop-play').addEventListener('click',()=>{
- if(playback!==null){pause();return;}
+ if(playback!==null){pause();renderRecommendation();return;}
  if(reducedMotion||m.loopControl(state).disabled)return;
  $('loop-play').textContent='暂停自动推进';$('loop-play').setAttribute('aria-pressed','true');
- playback=setInterval(()=>act({type:'loop-next'}),1000);
+ playback=setInterval(()=>act({type:'loop-next'}),1000);renderRecommendation();
 });
 window.addEventListener('pagehide',pause);render();
 $('mobile-nav').addEventListener('change',()=>{if($('mobile-nav').value)location.hash=$('mobile-nav').value;});
