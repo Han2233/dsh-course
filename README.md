@@ -5,6 +5,7 @@
 - [在线课程首页](https://han2233.github.io/dsh-course/)
 - [在线阅读第一课](https://han2233.github.io/dsh-course/lessons/01/)
 - [在线阅读第二课](https://han2233.github.io/dsh-course/lessons/02/)
+- [在线阅读第三课](https://han2233.github.io/dsh-course/lessons/03/)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
@@ -40,13 +41,21 @@
 
 已验证：两个 Preset、重复重启无重复贡献、依赖恢复、清理期间依赖变化、初始化失败回滚、多个状态下的卸载与停止、源码摘录和页面引用。第一课工作台快照保持原行为。第二课已增加一键组装、状态引导按钮与禁用原因，并阻止清理未完成时重新安装；按钮事件连接使用 DOM 测试替身验证，不等于浏览器视觉验收。
 
+## 第三课
+
+源码核查日期 2026-10-09，沿用提交 `5badb15`。约七千中文字符、11 处源码摘录，解释 Inbox 接纳、Turn / Step / Attempt、提示词和工具组装、PreparedLlmCall、请求快照、流式结算、工具衔接、重试与取消。多种图解替代自测。
+
+工作台保留前两课组装与插件操作，新增固定脚本模拟循环、followup / steer / inject、四种情境、逐步或自动播放、取消与 keepInbox、请求快照选择和事件观察。真实模型请求与文件操作始终为零；工具仅返回预设结果，第四课再扩展执行环境。减少动态效果偏好下使用单步推进。
+
+第三课页面复用前两课独立模型，不修改旧快照行为。已检查完整四步任务、重试不重复输入、请求快照独立、取消前缀、队列语义、服务撤销、终态错误与上限、按钮事件连接。DOM 测试替身不等于浏览器视觉验收。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
 |---|---|---|
 | 01 | 架构地图与启动组装 | 已制作 |
 | 02 | Cordis 插件内核 | 已制作 |
-| 03 | Agent 运行循环与模型请求 | 待制作 |
+| 03 | Agent 运行循环与模型请求 | 已制作 |
 | 04 | 工具系统与执行环境 | 待制作 |
 | 05 | 会话、上下文与长对话 | 待制作 |
 | 06 | 子 Agent 与持续任务编排 | 待制作 |
@@ -71,12 +80,16 @@ python3 -m http.server 4173 --bind 127.0.0.1
 ```sh
 python3 scripts/prepare_sources.py ../deepseek-harness
 python3 scripts/prepare_lesson02.py
+python3 scripts/prepare_lesson03.py
 python3 scripts/check_lesson.py
 python3 scripts/check_sources02.py
+python3 scripts/check_sources03.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
 node scripts/check_lesson02.cjs
 node scripts/check_controls02.cjs
+node scripts/check_lesson03.cjs
+node scripts/check_controls03.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
