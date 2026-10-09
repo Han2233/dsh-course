@@ -5,6 +5,7 @@
 - [在线课程首页](https://han2233.github.io/dsh-course/)
 - [在线阅读第一课](https://han2233.github.io/dsh-course/lessons/01/)
 - [在线阅读第二课](https://han2233.github.io/dsh-course/lessons/02/)
+- [在线阅读第四课](https://han2233.github.io/dsh-course/lessons/04/)
 - [在线阅读第三课](https://han2233.github.io/dsh-course/lessons/03/)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
@@ -49,6 +50,14 @@
 
 第三课页面复用前两课独立模型，不修改旧快照行为。已检查完整四步任务、重试不重复输入、请求快照独立、取消前缀、队列语义、服务撤销、终态错误与上限、按钮事件连接。DOM 测试替身不等于浏览器视觉验收。
 
+## 第四课
+
+源码核查 2026-10-09～10，沿用固定提交。约八千中文字符、12 处逐行摘录，覆盖工具定义与投影、作用域、准入与审批、单调守卫、规范值与内容、文件观察版本、Shell 与协作取消、并发调度、沙箱、MCP 和 PTC。包含分层图、双通道图、版本卡片、并发时间轴及可切换的 Native / PTC 对照。
+
+独立工作台保留前三课组装、插件与循环机制，新增页面内存中的 config.json、版本凭据、真实计算的虚拟读改查、审批卡、流水线轨迹与修改差异。可比较拒绝审批、只读、强制 guard、外部修改冲突和执行后 block。模型仍为固定脚本，不运行本机 Shell 或远程服务；文件变化仅存在页面内存。
+
+已验证正常四步任务、单次审批等待与拒绝、策略/守卫/只读拒绝、过期版本与重新读取、后置拦截不回滚、执行前后取消、宿主停止/重置、模型重试与工具失效，以及界面按钮连接和高亮状态。采用 DOM 测试替身，未完成浏览器视觉验收。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
@@ -56,7 +65,7 @@
 | 01 | 架构地图与启动组装 | 已制作 |
 | 02 | Cordis 插件内核 | 已制作 |
 | 03 | Agent 运行循环与模型请求 | 已制作 |
-| 04 | 工具系统与执行环境 | 待制作 |
+| 04 | 工具系统与执行环境 | 已制作 |
 | 05 | 会话、上下文与长对话 | 待制作 |
 | 06 | 子 Agent 与持续任务编排 | 待制作 |
 | 07 | 扩展与综合串联 | 待制作 |
@@ -84,12 +93,16 @@ python3 scripts/prepare_lesson03.py
 python3 scripts/check_lesson.py
 python3 scripts/check_sources02.py
 python3 scripts/check_sources03.py
+python3 scripts/prepare_lesson04.py
+python3 scripts/check_sources04.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
 node scripts/check_lesson02.cjs
 node scripts/check_controls02.cjs
 node scripts/check_lesson03.cjs
 node scripts/check_controls03.cjs
+node scripts/check_lesson04.cjs
+node scripts/check_controls04.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
