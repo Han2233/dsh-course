@@ -5,8 +5,9 @@
 - [在线课程首页](https://han2233.github.io/dsh-course/)
 - [在线阅读第一课](https://han2233.github.io/dsh-course/lessons/01/)
 - [在线阅读第二课](https://han2233.github.io/dsh-course/lessons/02/)
-- [在线阅读第四课](https://han2233.github.io/dsh-course/lessons/04/)
 - [在线阅读第三课](https://han2233.github.io/dsh-course/lessons/03/)
+- [在线阅读第四课](https://han2233.github.io/dsh-course/lessons/04/)
+- [在线阅读第五课](https://han2233.github.io/dsh-course/lessons/05/)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
@@ -58,6 +59,14 @@
 
 已验证正常四步任务、单次审批等待与拒绝、策略/守卫/只读拒绝、过期版本与重新读取、后置拦截不回滚、执行前后取消、宿主停止/重置、模型重试与工具失效，以及界面按钮连接和高亮状态。采用 DOM 测试替身，未完成浏览器视觉验收。
 
+## 第五课
+
+源码核查 2026-10-10，沿用固定提交。约七千九百中文字符、12 处逐行摘录，解释追加事件日志、模型 Surface、请求证据、flush 与持久化、恢复与 Fork、指令与 Skills、结果修剪和摘要压缩。使用三层视图、序列对照、持久化时间轴、分支泳道、修剪条带与事务阶段图。
+
+紧凑工作台默认前置能力就绪，保留完整 Agent 对话与虚拟读改查。按高亮引导依次体验保存、未保存消息、恢复、修剪、摘要提交和 Fork；可切换模型视图、事件日志、保存快照、教学请求与摘要候选，并比较父子分支。压缩保留原始对话；恢复不回滚虚拟文件。保存只存在页面内存，刷新即丢失；摘要是固定教学模板，不调用真实模型，不产生真实磁盘日志。
+
+已验证保存与恢复、Surface 重放一致性、修剪幂等、原始对话与请求快照保留、摘要成功/失败/取消、父子日志独立、重置、推荐按钮、检查器、分支切换与专注模式事件连接。交互验证使用 DOM 测试替身，尚未完成浏览器视觉核验。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
@@ -66,7 +75,7 @@
 | 02 | Cordis 插件内核 | 已制作 |
 | 03 | Agent 运行循环与模型请求 | 已制作 |
 | 04 | 工具系统与执行环境 | 已制作 |
-| 05 | 会话、上下文与长对话 | 待制作 |
+| 05 | 会话、上下文与长对话 | 已制作 |
 | 06 | 子 Agent 与持续任务编排 | 待制作 |
 | 07 | 扩展与综合串联 | 待制作 |
 
@@ -95,6 +104,8 @@ python3 scripts/check_sources02.py
 python3 scripts/check_sources03.py
 python3 scripts/prepare_lesson04.py
 python3 scripts/check_sources04.py
+python3 scripts/prepare_lesson05.py
+python3 scripts/check_sources05.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
 node scripts/check_lesson02.cjs
@@ -103,6 +114,8 @@ node scripts/check_lesson03.cjs
 node scripts/check_controls03.cjs
 node scripts/check_lesson04.cjs
 node scripts/check_controls04.cjs
+node scripts/check_lesson05.cjs
+node scripts/check_controls05.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
