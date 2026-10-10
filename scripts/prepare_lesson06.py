@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 import html,json,subprocess
+from lab_entry import apply_entry
 R=Path(__file__).resolve().parents[1];U=R.parent/'deepseek-harness';SHA='5badb15009ae1756c3afe0ae0cef1faafc290ccc'
 assert subprocess.check_output(['git','-C',str(U),'rev-parse','HEAD'],text=True).strip()==SHA
 D=R/'lessons/06';D.mkdir(exist_ok=True)
@@ -78,7 +79,7 @@ scripts='<script src="sources.js" defer></script>'+''.join(f'<script src="../../
 page=f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>06 · 子 Agent 与持续任务编排 — DSH 源码研读室</title><meta name="description" content="从源码理解 Spawn、Fork、可继续子 Agent、Job、Workflow、Goal 和 Schedule，通过紧凑工作台体验委派与通信。">{styles}{scripts}</head><body><a class="skip" href="#main">跳到正文</a><aside class="sidebar"><a class="brand" href="../../"><span class="brandmark">dsh</span><span>源码研读室<small>HARNESS FIELD NOTES</small></span></a><a class="back" href="../05/">← 第五课 · 会话与上下文</a><div class="nav-label">LESSON 06 / 本课目录</div><nav class="toc">{nav}</nav><div class="sidebar-foot"><progress id="reading-progress" max="100" value="0" aria-label="阅读位置"></progress><span id="reading-percent">阅读位置 0%</span><br>0.2.1-alpha.1 · 5badb15</div></aside><div class="mobile-header"><a href="../../">dsh / 源码研读室</a><select id="mobile-nav" aria-label="章节导航"><option value="">本课目录</option>{opts}</select></div><main class="main" id="main"><header class="hero"><div class="eyebrow">第六课 / 身份、所有权与继续工作的条件</div><h1>子 Agent<br>与持续任务编排</h1><p class="lead">把任务交出去之后，<br>谁来接收、谁在运行、谁负责收尾？</p><div class="meta"><span class="pill">深度课 06 / 07</span><span class="pill">0.2.1-alpha.1 · 5badb15</span><span class="pill">核查 2026-10-10</span></div></header><div class="note"><a href="#workbench">进入 Agent 委派工作台 →</a> · <a href="#lab">比较 Goal、Job 与 Schedule →</a></div>'''
 page+='\n'.join(f'<section class="lesson-section" id="{id}"><div class="section-no">{i:02} / LESSON 06</div><h2>{t}</h2>{body}</section>' for i,(id,t,body) in enumerate(sections,1))
 page+=f'<noscript><div class="note">交互需要 JavaScript；正文、静态图和源码摘录仍可阅读。</div></noscript><footer class="lesson-footer">非官方学习材料 · 源码 {SHA} · <a href="../../THIRD_PARTY_NOTICES.md">引用与许可</a></footer></main></body></html>'
-(D/'index.html').write_text(page)
+(D/'index.html').write_text(apply_entry(page,'06'))
 m={'version':'0.2.1-alpha.1','commit':SHA,'checked':'2026-10-10','sources':sources,'excerpts':excerpts}
 (D/'sources.json').write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n');(D/'sources.js').write_text('window.LESSON_SOURCES = '+json.dumps(m,ensure_ascii=False)+';\n')
 print('Generated lesson 06:',len(sections),'sections,',len(excerpts),'exact excerpts.')
