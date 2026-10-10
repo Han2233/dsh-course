@@ -1,0 +1,422 @@
+{
+  "version": "0.2.1-alpha.1",
+  "commit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "checked": "2026-10-10",
+  "sources": {
+    "cordis": {
+      "path": "docs/architecture.zh.md",
+      "start": 9,
+      "end": 16,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L9-L16",
+      "description": "cordis"
+    },
+    "architecture": {
+      "path": "docs/architecture.zh.md",
+      "start": 57,
+      "end": 74,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L57-L74",
+      "description": "architecture"
+    },
+    "boot": {
+      "path": "docs/architecture.zh.md",
+      "start": 15,
+      "end": 34,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L15-L34",
+      "description": "boot"
+    },
+    "events": {
+      "path": "docs/architecture.zh.md",
+      "start": 74,
+      "end": 83,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L74-L83",
+      "description": "events"
+    },
+    "flow": {
+      "path": "docs/architecture.zh.md",
+      "start": 88,
+      "end": 111,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L88-L111",
+      "description": "flow"
+    },
+    "seams": {
+      "path": "docs/architecture.zh.md",
+      "start": 135,
+      "end": 143,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L135-L143",
+      "description": "seams"
+    },
+    "extension-map": {
+      "path": "docs/architecture.zh.md",
+      "start": 143,
+      "end": 170,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/architecture.zh.md#L143-L170",
+      "description": "extension-map"
+    },
+    "plugin": {
+      "path": "docs/user/develop/basic/index.zh.md",
+      "start": 66,
+      "end": 89,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/user/develop/basic/index.zh.md#L66-L89",
+      "description": "plugin"
+    },
+    "config": {
+      "path": "docs/user/develop/basic/config.zh.md",
+      "start": 7,
+      "end": 39,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/user/develop/basic/config.zh.md#L7-L39",
+      "description": "config"
+    },
+    "publish": {
+      "path": "docs/user/develop/basic/publish.zh.md",
+      "start": 18,
+      "end": 62,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/user/develop/basic/publish.zh.md#L18-L62",
+      "description": "publish"
+    },
+    "contract": {
+      "path": "docs/cookbook/adding-a-tool.zh.md",
+      "start": 40,
+      "end": 56,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/cookbook/adding-a-tool.zh.md#L40-L56",
+      "description": "contract"
+    },
+    "presentation": {
+      "path": "docs/cookbook/adding-a-tool.zh.md",
+      "start": 95,
+      "end": 102,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/cookbook/adding-a-tool.zh.md#L95-L102",
+      "description": "presentation"
+    },
+    "define": {
+      "path": "packages/core/tools/src/schema.ts",
+      "start": 597,
+      "end": 601,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/schema.ts#L597-L601",
+      "description": "define"
+    },
+    "output-schema": {
+      "path": "packages/core/tools/src/schema.ts",
+      "start": 68,
+      "end": 72,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/schema.ts#L68-L72",
+      "description": "output-schema"
+    },
+    "register": {
+      "path": "packages/core/tools/src/index.ts",
+      "start": 1083,
+      "end": 1088,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/index.ts#L1083-L1088",
+      "description": "register"
+    },
+    "guard": {
+      "path": "packages/core/tools/src/index.ts",
+      "start": 1136,
+      "end": 1142,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/index.ts#L1136-L1142",
+      "description": "guard"
+    },
+    "reminder": {
+      "path": "packages/guard/repeat-tool-reminder/src/index.ts",
+      "start": 220,
+      "end": 232,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/guard/repeat-tool-reminder/src/index.ts#L220-L232",
+      "description": "reminder"
+    },
+    "preset-register": {
+      "path": "packages/preset/agent-preset-registry/src/index.ts",
+      "start": 81,
+      "end": 98,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L81-L98",
+      "description": "preset-register"
+    },
+    "preset-collect": {
+      "path": "packages/preset/agent-preset-registry/src/index.ts",
+      "start": 148,
+      "end": 152,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L148-L152",
+      "description": "preset-collect"
+    },
+    "preset-bind": {
+      "path": "packages/preset/agent-preset-registry/src/index.ts",
+      "start": 281,
+      "end": 290,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L281-L290",
+      "description": "preset-bind"
+    },
+    "preset-audit": {
+      "path": "packages/preset/agent-preset-registry/src/mount.ts",
+      "start": 204,
+      "end": 216,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/mount.ts#L204-L216",
+      "description": "preset-audit"
+    },
+    "preset-test": {
+      "path": "packages/preset/agent-preset-registry/tests/registry.spec.ts",
+      "start": 38,
+      "end": 57,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/tests/registry.spec.ts#L38-L57",
+      "description": "preset-test"
+    },
+    "preset-doc": {
+      "path": "packages/preset/agent-preset-registry/README.md",
+      "start": 56,
+      "end": 67,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/README.md#L56-L67",
+      "description": "preset-doc"
+    },
+    "creator": {
+      "path": "packages/extensions/tool-cordis/src/index.ts",
+      "start": 42,
+      "end": 52,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/extensions/tool-cordis/src/index.ts#L42-L52",
+      "description": "creator"
+    },
+    "inspect-host": {
+      "path": "packages/extensions/tool-cordis/src/host.ts",
+      "start": 16,
+      "end": 20,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/extensions/tool-cordis/src/host.ts#L16-L20",
+      "description": "inspect-host"
+    },
+    "inspect-doc": {
+      "path": "packages/extensions/tool-cordis/README.md",
+      "start": 67,
+      "end": 73,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/extensions/tool-cordis/README.md#L67-L73",
+      "description": "inspect-doc"
+    },
+    "creator-preset": {
+      "path": "packages/bundle/web-app/presets/cordis.patch.yml",
+      "start": 157,
+      "end": 170,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/bundle/web-app/presets/cordis.patch.yml#L157-L170",
+      "description": "creator-preset"
+    },
+    "manager": {
+      "path": "packages/boot/plugin-manager/src/index.ts",
+      "start": 795,
+      "end": 818,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/plugin-manager/src/index.ts#L795-L818",
+      "description": "manager"
+    },
+    "manager-doc": {
+      "path": "packages/boot/plugin-manager/README.md",
+      "start": 12,
+      "end": 15,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/plugin-manager/README.md#L12-L15",
+      "description": "manager-doc"
+    },
+    "inventory": {
+      "path": "packages/host/plugin-inventory/src/index.ts",
+      "start": 82,
+      "end": 97,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/host/plugin-inventory/src/index.ts#L82-L97",
+      "description": "inventory"
+    },
+    "setup": {
+      "path": "packages/core/agent-loop/src/index.ts",
+      "start": 775,
+      "end": 779,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/index.ts#L775-L779",
+      "description": "setup"
+    },
+    "scope": {
+      "path": "packages/core/scope/README.md",
+      "start": 69,
+      "end": 73,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/scope/README.md#L69-L73",
+      "description": "scope"
+    },
+    "append": {
+      "path": "packages/core/session/src/index.ts",
+      "start": 718,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/session/src/index.ts#L718",
+      "description": "append"
+    },
+    "surface": {
+      "path": "packages/core/session/src/surface.ts",
+      "start": 89,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/session/src/surface.ts#L89",
+      "description": "surface"
+    },
+    "jsonl-append": {
+      "path": "packages/session/session-persistence-jsonl/src/index.ts",
+      "start": 1324,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/session/session-persistence-jsonl/src/index.ts#L1324",
+      "description": "jsonl-append"
+    },
+    "compact-transaction": {
+      "path": "packages/compaction/compaction-basic/src/region.ts",
+      "start": 173,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/compaction/compaction-basic/src/region.ts#L173",
+      "description": "compact-transaction"
+    },
+    "instructions": {
+      "path": "packages/context/agent-instructions/src/index.ts",
+      "start": 84,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/context/agent-instructions/src/index.ts#L84",
+      "description": "instructions"
+    },
+    "skill-load": {
+      "path": "packages/skill/tool-skill/src/index.ts",
+      "start": 127,
+      "end": null,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/skill/tool-skill/src/index.ts#L127",
+      "description": "skill-load"
+    },
+    "continuation": {
+      "path": "packages/subagent/subagent/src/continuation.ts",
+      "start": 104,
+      "end": 117,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/subagent/subagent/src/continuation.ts#L104-L117",
+      "description": "continuation"
+    },
+    "jobs": {
+      "path": "packages/jobs/jobs-local/src/index.ts",
+      "start": 206,
+      "end": 215,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/jobs/jobs-local/src/index.ts#L206-L215",
+      "description": "jobs"
+    },
+    "workflow-host": {
+      "path": "packages/workflow/workflow-ptc/src/host.ts",
+      "start": 273,
+      "end": 288,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/workflow/workflow-ptc/src/host.ts#L273-L288",
+      "description": "workflow-host"
+    },
+    "goal-drive": {
+      "path": "packages/goal/goal-round-driver/src/index.ts",
+      "start": 164,
+      "end": 172,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/goal/goal-round-driver/src/index.ts#L164-L172",
+      "description": "goal-drive"
+    },
+    "schedule": {
+      "path": "packages/schedule/schedule/src/runtime.ts",
+      "start": 122,
+      "end": 134,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/schedule/schedule/src/runtime.ts#L122-L134",
+      "description": "schedule"
+    }
+  },
+  "excerpts": [
+    {
+      "path": "packages/core/tools/src/schema.ts",
+      "start": 597,
+      "end": 601,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/schema.ts#L597-L601",
+      "description": "define",
+      "id": "source-define"
+    },
+    {
+      "path": "packages/core/tools/src/schema.ts",
+      "start": 68,
+      "end": 72,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/schema.ts#L68-L72",
+      "description": "output-schema",
+      "id": "source-output-schema"
+    },
+    {
+      "path": "packages/core/tools/src/index.ts",
+      "start": 1083,
+      "end": 1088,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/index.ts#L1083-L1088",
+      "description": "register",
+      "id": "source-register"
+    },
+    {
+      "path": "packages/core/tools/src/index.ts",
+      "start": 1136,
+      "end": 1142,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/tools/src/index.ts#L1136-L1142",
+      "description": "guard",
+      "id": "source-guard"
+    },
+    {
+      "path": "packages/guard/repeat-tool-reminder/src/index.ts",
+      "start": 220,
+      "end": 232,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/guard/repeat-tool-reminder/src/index.ts#L220-L232",
+      "description": "reminder",
+      "id": "source-reminder"
+    },
+    {
+      "path": "packages/preset/agent-preset-registry/src/mount.ts",
+      "start": 204,
+      "end": 216,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/mount.ts#L204-L216",
+      "description": "preset-audit",
+      "id": "source-preset-audit"
+    },
+    {
+      "path": "packages/core/agent-loop/src/index.ts",
+      "start": 775,
+      "end": 779,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/index.ts#L775-L779",
+      "description": "setup",
+      "id": "source-setup"
+    },
+    {
+      "path": "packages/preset/agent-preset-registry/src/index.ts",
+      "start": 81,
+      "end": 98,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L81-L98",
+      "description": "preset-register",
+      "id": "source-preset-register"
+    },
+    {
+      "path": "packages/preset/agent-preset-registry/src/index.ts",
+      "start": 148,
+      "end": 152,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/src/index.ts#L148-L152",
+      "description": "preset-collect",
+      "id": "source-preset-collect"
+    },
+    {
+      "path": "packages/preset/agent-preset-registry/tests/registry.spec.ts",
+      "start": 38,
+      "end": 57,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/preset/agent-preset-registry/tests/registry.spec.ts#L38-L57",
+      "description": "preset-test",
+      "id": "source-preset-test"
+    },
+    {
+      "path": "packages/extensions/tool-cordis/src/index.ts",
+      "start": 42,
+      "end": 52,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/extensions/tool-cordis/src/index.ts#L42-L52",
+      "description": "creator",
+      "id": "source-creator"
+    },
+    {
+      "path": "packages/extensions/tool-cordis/src/host.ts",
+      "start": 16,
+      "end": 20,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/extensions/tool-cordis/src/host.ts#L16-L20",
+      "description": "inspect-host",
+      "id": "source-inspect-host"
+    },
+    {
+      "path": "packages/boot/plugin-manager/src/index.ts",
+      "start": 795,
+      "end": 818,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/boot/plugin-manager/src/index.ts#L795-L818",
+      "description": "manager",
+      "id": "source-manager"
+    },
+    {
+      "path": "packages/host/plugin-inventory/src/index.ts",
+      "start": 82,
+      "end": 97,
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/host/plugin-inventory/src/index.ts#L82-L97",
+      "description": "inventory",
+      "id": "source-inventory"
+    }
+  ]
+}

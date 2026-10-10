@@ -9,6 +9,8 @@
 - [在线阅读第四课](https://han2233.github.io/dsh-course/lessons/04/)
 - [在线阅读第五课](https://han2233.github.io/dsh-course/lessons/05/)
 - [在线阅读第六课](https://han2233.github.io/dsh-course/lessons/06/)
+- [在线阅读第七课](https://han2233.github.io/dsh-course/lessons/07/)
+- [完整架构图](https://han2233.github.io/dsh-course/lessons/07/#architecture) · [下载 SVG](https://han2233.github.io/dsh-course/lessons/07/dsh-architecture.svg)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
@@ -76,6 +78,16 @@
 
 已验证完整引导、上下文差异、稳定身份、父子记录保留、队列领取与中断、越权消息拒绝、Goal 轮数上限、Job 收尾、Schedule 回执边界，以及全部按钮和检查器连接。使用 DOM 测试替身，未完成浏览器视觉核验。
 
+## 第七课
+
+源码核查 2026-10-10，沿用固定提交。约七千九百中文字符、14 处逐行摘录，讲解插件、工具、策略与能力提供方的扩展位置，输入/规范值/模型内容/呈现事实的契约，作用域与服务隔离、Preset 版本、Creator 只读检查、Bundle 与 Profile 安装、运行时观察和验证边界。
+
+扩展工作台默认前六课案例已完成，保留父 Agent 完整历史。可挂载纯审计工具，对比两个 Agent 绑定 minimum=30 / 60 时的结果，并模拟挂载失败、守卫拒绝、输出类型错误、移除定义与引用释放。独立教学模型执行纯数值判断，没有安装真实插件。附 `timeout-audit.ts` 教学示例；已按固定快照核对 API，未编译或执行该 TypeScript 文件。
+
+课程末尾提供 24 个组件组的完整核心架构图：主线高亮、组件说明与源码、展开阅读、手机组件列表，以及带源码链接的独立 SVG。覆盖启动组装、核心循环、工具与环境、会话与持久化、上下文及持续任务编排，明确图中省略的跨层连线和可选能力边界。
+
+已验证完整工作台引导、领域结果与工具错误区分、失败重试、作用域版本、旧绑定保留、引用清理、完整历史，以及图中 24 个组件的选择、键盘事件、主线高亮和展开。SVG 的 XML 与来源链接有效。交互通过 DOM 测试替身检查；真实浏览器视觉核验未完成。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
@@ -86,7 +98,7 @@
 | 04 | 工具系统与执行环境 | 已制作 |
 | 05 | 会话、上下文与长对话 | 已制作 |
 | 06 | 子 Agent 与持续任务编排 | 已制作 |
-| 07 | 扩展与综合串联 | 待制作 |
+| 07 | 扩展与综合串联 | 已制作 |
 
 ## 文件与本地阅读
 
@@ -117,6 +129,8 @@ python3 scripts/prepare_lesson05.py
 python3 scripts/check_sources05.py
 python3 scripts/prepare_lesson06.py
 python3 scripts/check_sources06.py
+python3 scripts/prepare_lesson07.py
+python3 scripts/check_sources07.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
 node scripts/check_lesson02.cjs
@@ -129,6 +143,8 @@ node scripts/check_lesson05.cjs
 node scripts/check_controls05.cjs
 node scripts/check_lesson06.cjs
 node scripts/check_controls06.cjs
+node scripts/check_lesson07.cjs
+node scripts/check_controls07.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
@@ -149,4 +165,4 @@ node scripts/check_controls06.cjs
 
 第四课恢复持续对话区，展示用户任务、Agent 回复、工具调用和已提交结果；输入区固定在对话底部，对话内部滚动，保留紧凑高度与专注模式。后续每课保留统一对话界面。
 
-六节已发布课程开头均加入显著实验室体验卡，提供各课操作介绍与直接跳转按钮；支持手机布局和键盘焦点。内容与工作台逻辑保留。后续课程沿用此入口规范。
+七节已发布课程开头均加入显著实验室体验卡，提供各课操作介绍与直接跳转按钮；支持手机布局和键盘焦点。内容与工作台逻辑保留。后续课程沿用此入口规范。
