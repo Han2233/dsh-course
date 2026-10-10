@@ -1,59 +1,47 @@
 # -*- coding: utf-8 -*-
-"""One canonical component map for the inline diagram and downloadable SVG."""
-import html
-NODES=[
-('boot','Profile / Bundle / Patch','组装入口与有序配置层','boot','01','boot','CLI 读取 Profile 的 Bundle 与逐层 patch；配置层决定启用的插件树。'),
-('kernel','Cordis / Loader / Scope','服务、事件、依赖、可逆副作用','cordis','02','boot','Cordis 提供生命周期与依赖；Scope 为贡献绑定可见性与所有权。它不是安全沙箱。'),
-('preset','Agent Preset Registry','定义 → 版本 → Agent 绑定','preset-bind','01 · 07','boot','Preset 挂载作用域化组合；在线 Agent 保留具体版本，退休版本引用归零后清理。'),
-('creator','Creator / Plugin Manager','只读发现接口 / 持久 Profile 修改','creator','07','boot','Creator 查询运行时接口；Plugin Manager 管理 Bundle 与配置应用，两者权限和职责不同。'),
-('carriers','Web / CLI / SDK / ACP','用户输入与产品载体','architecture','01','turn','不同宿主载体调用运行服务，Web 还通过 API 与 Client renderer 展示历史和实时增量；不是多条独立 Agent 内核。'),
-('inbox','Controller / Agent Inbox','接纳、排队、steer、注入','flow','03','turn orchestration','控制层取得 Agent，输入进入同一个 Inbox；inject 停放上下文，本身不唤醒空闲 Agent。'),
-('loop','Agent / AgentLoop','Turn → Step → Attempt','flow','03','turn boot','Agent 是接口与注册身份；默认 AgentLoop 驱动请求、工具衔接、重试与取消。'),
-('model','Prompt / LLM / Adapter','组装 → Prepared Call → 流式响应','flow','03','turn','Prompt 合成可见贡献与工具 schema，LLM seam 绑定适配器和请求能力，再处理流式结果。外部模型服务位于适配器之后。'),
-('session','Session Event Log','不可变事实 / 模型 Surface','append','05','turn state','日志保存用户、助手、请求与工具事实；Surface 派生模型消息，不能等同于 UI 完整对话。'),
-('projection','Projection / Client Views','重放派生状态与界面视图','architecture','05','state','Session projection 折叠事件为状态；Client 按公开事实渲染，实时流是另一条非持久增量路径。'),
-('tools','ToolRuntime / Registry','准入 → 守卫 → 执行 → 后置策略','register','04 · 07','turn','可见 schema 来自作用域注册；执行有独立的权限与结果流水线，规范值和模型内容分别处理。'),
-('execution','FS / Shell / Subprocess','提供方决定实际执行环境','seams','04','turn','工具消费者调用能力提供方。文件、进程与沙箱形成执行环境；并非所有工具都会触及磁盘或 Shell。'),
-('persistence','Persistence / Checkpoint','JSONL · flush · restore / fork','jsonl-append','05','state','内存 append 与持久检查点不同；恢复重建会话，不回滚外部文件。后端可替换。'),
-('compaction','Compaction / Result Pruner','追加替换事实，缩短模型视图','compact-transaction','05','state','摘要与修剪改变模型可见 Surface，保留原始历史；事务失败不能冒充成功提交。'),
-('mcp','MCP Consumer / Connection','远端工具 schema 与调用','seams','04','turn','MCP 连接外部工具服务，仍需明确工具注册、准入与宿主连接生命周期。图示不代表远端自动可信。'),
-('ptc','Code / PTC Transport','程序调用重新进入工具流水线','contract','04','turn','模型可写程序编排工具；调用得到规范值，重新通过 ToolRuntime，不绕过守卫与权限。'),
-('subagent','Subagent Providers','Spawn / Fork / Activation','continuation','06','orchestration','工具触发委派；新会话或继承前缀，继续执行管理器负责相邻消息、冷恢复与所有权。'),
-('jobs','Jobs Runtime','后台句柄 / 输出 / cancel / done','jobs','06','orchestration','一次性后台工作交给 Job 管理；jobs-local 是进程内记录，停止请求不等于 done 收敛。'),
-('workflow','Workflow Engine','脚本并行与子级结果聚合','workflow-host','06','orchestration','Workflow 的 agent hook 调用 Subagent seam；调用者持有 run 并等待清理，当前引擎不保存运行现场。'),
-('goal','Goal + Round Driver','同会话目标 / 版本 / 续跑授权','goal-drive','06','orchestration state','Goal 保存目标；独立 Driver 检查授权与轮数，再将后续轮次放入 Inbox。'),
-('schedule','Schedule Host','到时向原 Session followup','schedule','06','orchestration','持久规则到时取得原会话并投递消息，flush 后保存回执；回执不保证模型任务完成。'),
-('context','Instructions / Skills','上下文贡献与按需加载','instructions','05','state turn','指令与 Skills 影响提示词或模型可见消息；完整内容、加载时机与持久证据各有契约。'),
-('policy','Approval / Guard / Sandbox','交互批准 / 单调拒绝 / 执行边界','guard','04','turn','三层约束负责不同问题。作用域可见不等于获准，审批也不代替进程隔离。'),
-('observe','Inspect / Inventory / Events','只读诊断与状态观察','inventory','07','boot state','检查当前接口、Loader phase、组合与日志事实，不把观察工具误作运行时修改入口。'),
-]
-ROWS=['01  启动与组装 · 配置决定插件树','02  交互与运行 · 核心请求循环','03  事实与执行 · 记录、呈现、调用','04  历史与工具扩展 · 可选能力','05  持续任务编排 · 工具 / Inbox 接入','06  时间、上下文与横切机制 · 按组合启用']
-def build(sources,download=False):
+"""Repository containment map, verified against the pinned source checkout."""
+import html, math
+from pathlib import Path
+U=Path(__file__).resolve().parents[2]/'deepseek-harness'
+SHA='5badb15009ae1756c3afe0ae0cef1faafc290ccc'
+BASE=f'https://github.com/deepseek-ai/deepseek-harness/tree/{SHA}/'
+DESCRIPTIONS={
+'acp':'自动化协议服务','api':'远程 BFF 与 RPC','attachment':'附件身份与本地存储','boot':'共享启动与配置组装','browser-use':'浏览器能力提供方','bundle':'可安装的 Profile 组合层','client':'浏览器客户端与 UI','compaction':'会话压缩服务与实现','computer-use':'计算机操作能力','context':'指令、时间与上下文贡献','core':'Agent、Session 与工具核心','credentials':'凭据服务与认证流程','deliverables':'交付文件与工作区变更','document':'Office / PDF 转换','experimental':'实验性能力与原型','extensions':'运行时接口发现与扩展工具','feedback':'用户反馈命令','fs':'文件服务、实现与工具','goal':'目标状态与续跑驱动','guard':'执行期限与重复调用提醒','hooks':'外部 Hook 协议桥接','host':'Web 宿主与运行时设施','identity':'共享匿名身份','interaction':'审批、命令与用户询问','jobs':'后台工作与控制工具','llm':'模型服务与适配器','lsp':'语言服务器与工具','mcp':'外部 MCP 服务接入','plan':'计划状态与退出协作','preset':'Agent 组合与版本绑定','ptc-runtime':'程序化工具调用运行时','sandbox':'执行隔离服务与后端','schedule':'宿主定时跟进','sdk':'进程外 JSON-RPC 接口','session':'持久化、投影与报告','session-query':'会话检索与有界读取','settings':'设置服务与文件后端','shell':'Shell 执行接口与工具','skill':'技能注册与目录加载','spill':'大结果溢出存储','ssh':'远程执行环境提供方','storage':'非会话数据存储','subagent':'子 Agent 服务与工具','subprocess':'子进程服务与本地实现','telemetry':'共享遥测设施','terminal':'PTY 会话与所有权','test-support':'测试与重放支持','todo':'任务清单工具','typert':'类型图与 RPC 支持','util':'低层共享工具库','web':'搜索、抓取与模型工具','webhook':'验证事件与可信规则','workflow':'工作流接口与执行引擎','workspace':'工作区实体与服务'}
+GROUPS=[
+('apps','apps/ · 产品载体','同一运行时的不同入口与交付形式', [('cli','统一 dsh 命令入口'),('web','Web 前端构建产物'),('desktop','Electron 桌面应用'),('desktop-host','私有 Node 宿主进程')]),
+('packages','packages/ · 按领域组织的工作区包','下列每个方块是目录组；叶子包位于 packages/<group>/<pkg>', sorted(DESCRIPTIONS.items())),
+('vendor','vendor/ · 仓库维护的基础框架','Cordis 及其配套库：生命周期、加载、配置与事件基础', [('cordis','插件与服务框架'),('cosmokit','通用辅助库'),('group','插件分组'),('hmr','热重载支持'),('include','组合导入'),('loader','插件加载器'),('logger-console','控制台日志'),('schemastery','配置 schema'),('timer','计时器插件')]),
+('native','native/ · 平台原生组件','供上层能力调用；策略与会话生命周期仍由调用方负责', [('system','Landlock 与 POSIX flock')]),
+('python','python/ · Python 客户端与运行时分发','通过 stdio JSON-RPC 驱动 dsh 子进程', [('sdk','Python 客户端 API'),('sdk-runtime','CLI 与原生组件分发')]),
+('engineering','仓库根目录 · 文档与工程支持','与运行时功能包分开呈现；不表示请求执行顺序', [('docs','架构、使用与开发文档'),('website','文档网站工程'),('scripts','构建与维护脚本'),('benchmarks','基准测试'),('snapshots','快照资料'),('patches','依赖补丁')])]
+assert set(DESCRIPTIONS)=={p.name for p in (U/'packages').iterdir() if p.is_dir() and not p.name.startswith('.')}
+NODES=[]
+for group,_,_,items in GROUPS:
+ for name,sub in items:
+  path=name if group=='engineering' else f'{group}/{name}'
+  assert (U/path).is_dir(),path
+  detail=f'{path}/：{sub}。'
+  if path=='packages/core':detail+='包含 agent、agent-loop、agent-default-model、agent-tool-presentation、scope、session、system-prompt、tools；这里的 session 是核心事实日志，packages/session 是持久化与投影等外围实现。'
+  elif group=='packages':detail+='这是领域目录组，内部可包含服务接口、提供方、消费者或组合包；不是一个 npm 包，也不代表默认 Profile 全部启用。'
+  elif path=='apps/web':detail+='以 dsh-client-web 为基础构建前端，dist 由 CLI 的 dsh web 提供。'
+  elif path=='apps/desktop-host':detail+='为 Electron 提供 Node 模式宿主；复用共享启动与运行服务。'
+  elif path=='packages/goal':detail+='目标状态与 Driver 分工。'
+  NODES.append((path.replace('/','-'),path+'/',sub,BASE+path,group,detail))
+
+def build(sources=None,download=False):
  esc=html.escape
- parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1440" viewBox="0 0 1280 1440" role="group" aria-labelledby="architecture-title architecture-desc">','<title id="architecture-title">DeepSeek Harness 完整核心架构图</title>','<desc id="architecture-desc">六层二十四个组件组。箭头标明主要调用或事实流；编排组件通过节点注明的工具或 Inbox 接回运行层。图省略可选包的全部连线，详解在图下方。</desc>', '<defs><marker id="arch-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#638574"/></marker></defs>', '<rect width="1280" height="1440" rx="18" fill="#f7f6ef"/>','<text x="30" y="37" fill="#173f32" font-size="22" font-family="sans-serif" font-weight="700">DSH · 7 课核心架构总览</text>','<text x="30" y="61" fill="#566b61" font-size="12" font-family="sans-serif">0.2.1-alpha.1 / 5badb15 · 主路径箭头；编排回接位置见节点与图下说明 · 可选能力不一定启用</text>']
- def edge(path,label,x,y,dashed=False):
-  parts.append(f'<path d="{path}" fill="none" stroke="#638574" stroke-width="2"'+(' stroke-dasharray="6 4"' if dashed else '')+' marker-end="url(#arch-arrow)"/>')
-  if label:parts.append(f'<text x="{x}" y="{y}" fill="#566b61" font-size="11" font-family="sans-serif">{label}</text>')
- # Each row has a header, cards and a spacious routing lane.
- for row,title in enumerate(ROWS):
-  y=100+row*215;parts.append(f'<text x="30" y="{y}" fill="#6b796d" font-size="13" font-family="sans-serif">{title}</text>')
- edge('M310 166 H340','',0,0);edge('M620 166 H650','',0,0)
- edge('M1095 117 V78 H170 V117','Profile 修改 / 下次组合',650,76,True)
- edge('M790 215 V332','绑定',800,270,True)
- edge('M310 381 H340','',0,0);edge('M620 381 H650','',0,0);edge('M930 365 H960','请求',934,350)
- edge('M960 402 H930','响应',933,421)
- edge('M790 430 V547','调用工具',800,486)
- edge('M680 430 V470 H170 V547','追加运行事实',300,463)
- edge('M310 596 H340','',0,0);edge('M930 596 H960','执行',934,580)
- edge('M170 645 V762','flush / 恢复',181,710)
- edge('M480 762 V694 H170 V645','Surface 替换',290,687,True)
- edge('M790 645 V762','MCP 工具',800,710,True)
- edge('M1100 762 V697 H850 V645','PTC 重入',966,688,True)
- edge('M790 1075 V1110 H170 V1075','启动子 Agent',403,1101)
- for i,(key,title,sub,source,lesson,paths,detail) in enumerate(NODES):
-  col=i%4;row=i//4;x=30+col*310;y=117+row*215
-  fill=['#e5eedf','#dfebe5','#e8e9f2','#f3e9d4','#e5edf1','#ede8df'][row]
-  opening=f'<a href="{esc(sources[source]["url"],quote=True)}" target="_blank">' if download else f'<g class="arch-node" data-node="{key}" data-paths="{paths}" role="button" tabindex="0" aria-label="{esc(title)}：查看职责">'
-  parts.extend([opening,f'<rect x="{x}" y="{y}" width="280" height="98" rx="12" fill="{fill}" stroke="#9fb4a7"/>',f'<text x="{x+14}" y="{y+26}" font-family="sans-serif" font-size="15" font-weight="700" fill="#173f32">{esc(title)}</text>',f'<text x="{x+14}" y="{y+50}" font-family="sans-serif" font-size="12" fill="#4a6255">{esc(sub)}</text>',f'<text x="{x+14}" y="{y+78}" font-family="sans-serif" font-size="11" fill="#61786a">课程 {lesson} · '+('打开源码 ↗' if download else '点击查看职责与源码')+'</text>', '</a>' if download else '</g>'])
- parts.extend(['<text x="30" y="1412" fill="#566b61" font-family="sans-serif" font-size="12">实线：主要请求 / 结果 / 事实流。虚线：配置、绑定或投影 / 可选调用。Cordis 与策略约束跨层生效。</text>','</svg>'])
+ height=160+sum(90+math.ceil(len(items)/4)*83 for _,_,_,items in GROUPS)
+ parts=[f'<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="{height}" viewBox="0 0 1280 {height}" role="group" aria-labelledby="architecture-title architecture-desc">', '<title id="architecture-title">DeepSeek Harness 仓库结构与职责全景</title>','<desc id="architecture-desc">以仓库根目录为起点，分区表示目录包含关系，方块表示实际目录。没有执行顺序箭头。全部功能包目录组均列出，叶子包请沿源码查看。</desc>',f'<rect width="1280" height="{height}" rx="18" fill="#f7f6ef"/>','<text x="30" y="40" fill="#173f32" font-size="23" font-family="sans-serif" font-weight="700">deepseek-harness/ · 仓库结构与职责全景</text>','<text x="30" y="67" fill="#566b61" font-size="13" font-family="sans-serif">0.2.1-alpha.1 / 5badb15 · 分区 = 目录归属 · 方块 = 实际目录 · 点击定位源码</text>']
+ y=88
+ for gi,(group,title,desc,items) in enumerate(GROUPS):
+  h=90+math.ceil(len(items)/4)*83
+  parts.extend([f'<rect x="20" y="{y}" width="1240" height="{h-12}" rx="14" fill="{["#edf2e7","#e5eeea","#eeeaf4","#f4ecd9","#e6eef4","#eeede6"][gi]}" stroke="#b6c6bb"/>',f'<text x="38" y="{y+28}" fill="#173f32" font-family="sans-serif" font-size="18" font-weight="700">{esc(title)}</text>',f'<text x="38" y="{y+49}" fill="#566b61" font-family="sans-serif" font-size="12">{esc(desc)}</text>'])
+  nodes=[n for n in NODES if n[4]==group]
+  for i,(key,path,sub,url,_,detail) in enumerate(nodes):
+   x=38+(i%4)*303;cy=y+64+(i//4)*83
+   label=path if group=='engineering' else path.split('/')[1]+'/'
+   parts.append(f'<a href="{url}" target="_blank">' if download else f'<g class="arch-node" data-node="{key}" data-paths="{group}" role="button" tabindex="0" aria-label="{esc(path)}：查看职责">')
+   parts.extend([f'<rect x="{x}" y="{cy}" width="288" height="70" rx="9" fill="#fffef9" stroke="#a3baad"/>',f'<text x="{x+12}" y="{cy+25}" fill="#173f32" font-family="monospace" font-size="16" font-weight="700">{esc(label)}</text>',f'<text x="{x+12}" y="{cy+49}" fill="#526b5d" font-family="sans-serif" font-size="12">{esc(sub)}</text>','</a>' if download else '</g>'])
+  y+=h
+ parts.append(f'<text x="30" y="{height-24}" fill="#566b61" font-family="sans-serif" font-size="12">包含全部 packages 目录组；隐藏目录、根级配置文件与叶子包未逐项展开。调用关系与 peer 依赖另见图下说明。</text></svg>')
  return ''.join(parts)
