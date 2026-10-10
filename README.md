@@ -8,6 +8,7 @@
 - [在线阅读第三课](https://han2233.github.io/dsh-course/lessons/03/)
 - [在线阅读第四课](https://han2233.github.io/dsh-course/lessons/04/)
 - [在线阅读第五课](https://han2233.github.io/dsh-course/lessons/05/)
+- [在线阅读第六课](https://han2233.github.io/dsh-course/lessons/06/)
 - [本地课程首页](index.html)
 - [第一课：架构地图与启动组装](lessons/01/index.html)
 - [课程约束](AGENTS.md)
@@ -67,6 +68,14 @@
 
 已验证保存与恢复、Surface 重放一致性、修剪幂等、原始对话与请求快照保留、摘要成功/失败/取消、父子日志独立、重置、推荐按钮、检查器、分支切换与专注模式事件连接。交互验证使用 DOM 测试替身，尚未完成浏览器视觉核验。
 
+## 第六课
+
+源码核查 2026-10-10，沿用固定提交。约六千六百中文字符、13 处逐行源码摘录、26 个固定提交来源，区分 Spawn / Fork 的上下文起点与一次性 / 可继续的生命周期，讲解 Activation 所有权、相邻通信、冷恢复、中断、后台 Job、Workflow 聚合、Goal 续跑与 Schedule 投递。
+
+紧凑工作台复用前课虚拟读改查模型，新增父 Agent、Spawn 检查员与 Fork 复核员。保留各自完整对话、共享虚拟文件、收件箱与教学事件；可体验延迟领取、补充要求、激活收尾、冷恢复、中断和兄弟通信拒绝。独立对照实验展示 Goal 恢复后 disarmed、Job 取消后等待 done、Schedule 回执不等于模型执行。所有子 Agent、恢复与计时均为离散教学模拟，不调用真实模型或后台服务。
+
+已验证完整引导、上下文差异、稳定身份、父子记录保留、队列领取与中断、越权消息拒绝、Goal 轮数上限、Job 收尾、Schedule 回执边界，以及全部按钮和检查器连接。使用 DOM 测试替身，未完成浏览器视觉核验。
+
 ## 课程进度
 
 | 课次 | 主题 | 状态 |
@@ -76,7 +85,7 @@
 | 03 | Agent 运行循环与模型请求 | 已制作 |
 | 04 | 工具系统与执行环境 | 已制作 |
 | 05 | 会话、上下文与长对话 | 已制作 |
-| 06 | 子 Agent 与持续任务编排 | 待制作 |
+| 06 | 子 Agent 与持续任务编排 | 已制作 |
 | 07 | 扩展与综合串联 | 待制作 |
 
 ## 文件与本地阅读
@@ -106,6 +115,8 @@ python3 scripts/prepare_lesson04.py
 python3 scripts/check_sources04.py
 python3 scripts/prepare_lesson05.py
 python3 scripts/check_sources05.py
+python3 scripts/prepare_lesson06.py
+python3 scripts/check_sources06.py
 node scripts/check_models.cjs
 node scripts/check_workbench.cjs
 node scripts/check_lesson02.cjs
@@ -116,6 +127,8 @@ node scripts/check_lesson04.cjs
 node scripts/check_controls04.cjs
 node scripts/check_lesson05.cjs
 node scripts/check_controls05.cjs
+node scripts/check_lesson06.cjs
+node scripts/check_controls06.cjs
 ```
 
 检查覆盖本地资源和锚点、HTML 结构、源码区域行号、逐行摘录一致性、脚本语法、界面元素引用，以及配置覆盖的 16 种组合和 Preset 演示的关键生命周期。上述检查不等于运行 dsh 的测试套件。
